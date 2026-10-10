@@ -1670,12 +1670,81 @@ function initStocks(){
   }));
 }
 
+const MAX_ACTIVE_AI_BRANDS=12;
+const AI_BRAND_POOL=['APEX','NEXUS','TITAN','QUANTUM','OMEGA','PRIME','STELLAR','PHANTOM','HYPER','GENESIS','CYPRESS','VOLT','ZENITH','KRAKEN','PULSE','NOVA','CIPHER','VORTEX','PIONEER','ECLIPSE','SYNAPSE','COBALT','FUSION','PHOTON','RIVET'];
+let _aiBrandIdCounter=0;
 function initAiBrands(){
-  return AI_BRAND_NAMES.slice(0,5).map((name,i)=>({
-    id:i, name, cat:AI_BRAND_CATS[i%AI_BRAND_CATS.length],
-    techLevel:10+i*5, rndProgress:0, rndInterval:8+i*2,
-    lastRndDay:0,
-  }));
+  _aiBrandIdCounter=0;
+  return AI_BRAND_NAMES.slice(0,5).map((name,i)=>{
+    _aiBrandIdCounter++;
+    return {
+      id:_aiBrandIdCounter, name, cat:AI_BRAND_CATS[i%AI_BRAND_CATS.length],
+      techLevel:10+i*5, rndProgress:0, rndInterval:8+i*2,
+      lastRndDay:0,
+      share:8+i*2, revenue:3000+i*1500, status:'stable',
+      bankrupt:false, foundedDay:1, daysActive:0,
+    };
+  });
+}
+function spawnAiBrand(){
+  if(game.aiBrands.filter(b=>!b.bankrupt).length>=MAX_ACTIVE_AI_BRANDS)return;
+  const used=game.aiBrands.map(b=>b.name);
+  const available=AI_BRAND_POOL.filter(n=>!used.includes(n));
+  if(!available.length)return;
+  const name=available[Math.floor(Math.random()*available.length)];
+  const cat=AI_BRAND_CATS[Math.floor(Math.random()*AI_BRAND_CATS.length)];
+  _aiBrandIdCounter++;
+  const brand={
+    id:_aiBrandIdCounter, name, cat,
+    techLevel:5+Math.floor(Math.random()*20)+game.eraIdx*3,
+    rndProgress:0, rndInterval:6+Math.floor(Math.random()*6),
+    lastRndDay:game.day,
+    share:3+Math.floor(Math.random()*5),
+    revenue:1000+Math.floor(Math.random()*3000),
+    status:'rising', bankrupt:false, foundedDay:game.day, daysActive:0,
+  };
+  game.aiBrands.push(brand);
+  pushLog('[Google ảo] Hãng mới '+name+' gia nhập thị trường!','info');
+  showToast('Hãng AI mới: '+name+' xuất hiện!','info');
+}
+function processAiBrandLifeCycle(){
+  const active=game.aiBrands.filter(b=>!b.bankrupt);
+  for(let i=active.length-1;i>=0;i--){
+    const b=active[i];
+    b.daysActive++;
+    const roll=Math.random();
+    if(b.status==='rising'){
+      b.share+=0.3+Math.random()*0.8;
+      b.revenue+=Math.round(Math.random()*800);
+      if(roll<0.12){b.status='falling';}
+      else if(roll<0.22){b.status='stable';}
+    }else if(b.status==='falling'){
+      b.share-=0.5+Math.random()*1.2;
+      b.revenue=Math.max(200,b.revenue-Math.round(Math.random()*1200));
+      if(roll<0.15){b.status='stable';}
+    }else if(b.status==='stuck'){
+      b.share-=0.3;
+      b.revenue=Math.max(200,b.revenue-Math.round(Math.random()*600));
+      if(roll<0.2){b.status='rising';pushLog(b.name+' phục hồi sau bế tắc!','ok');}
+    }else{
+      if(roll<0.15){b.status='rising';b.share+=0.5;}
+      else if(roll<0.25){b.status='falling';b.share-=0.3;}
+      else{b.share+=0.1;b.revenue+=Math.round(Math.random()*400);}
+    }
+    b.share=Math.max(0.5,Math.min(40,b.share));
+    if(b.share<2 && b.daysActive>10){
+      b.bankrupt=true;
+      pushLog('[Google ảo] '+b.name+' PHÁ SẢN! Bị loại khỏi bảng xếp hạng.','err');
+      showToast(b.name+' phá sản và biến mất!','warn');
+    }
+  }
+  if(game.aiBrands.length>40){
+    game.aiBrands=game.aiBrands.filter(b=>!b.bankrupt);
+  }
+  const alive=game.aiBrands.filter(b=>!b.bankrupt).length;
+  if(alive<MAX_ACTIVE_AI_BRANDS && Math.random()<0.3){
+    spawnAiBrand();
+  }
 }
 
 function pushLog(msg,type='info'){
@@ -2901,8 +2970,11 @@ function updateStocks(){
 }
 const AI_PRODUCT_LINES={cpu:['Core','Ryzen','Snapdragon'],gpu:['GeForce','Radeon','Arc'],laptop:['ProBook','UltraBook','GamerBook'],mobile:['Galaxy','iPhone','Redmi']};
 function updateAiBrands(){
+  processAiBrandLifeCycle();
   const eraBonus=1+game.eraIdx*0.15;
-  game.aiBrands.forEach(brand=>{brand.rndProgress+=(100/brand.rndInterval)*eraBonus;
+  game.aiBrands.forEach(brand=>{
+    if(brand.bankrupt)return;
+    brand.rndProgress+=(100/brand.rndInterval)*eraBonus;
     if(brand.rndProgress>=100){brand.rndProgress=0;const techGain=Math.round((5+Math.random()*15)*(1+game.eraIdx*0.1));brand.techLevel+=techGain;
       const cat=brand.cat,perf=brand.techLevel+Math.round(Math.random()*10);
       const lines=AI_PRODUCT_LINES[cat]||['Series'];
@@ -2915,7 +2987,9 @@ function updateAiBrands(){
       const vram=cat==='gpu'?Math.round(4+perf/15):0;
       CATALOG.push({id:itemId,n:name,cat,e:game.eraIdx,cost:Math.round(perf*30),watt:Math.round(perf*2+30),perf,tier:Math.min(5,3+Math.floor(perf/40)),aiMade:true,brand:brand.name,vram});
       pushLog('Hãng AI '+brand.name+' tung ra '+name+' ('+perf+' perf'+(vram?', '+vram+'GB':'')+')}!','err');showToast(brand.name+' phát hành '+name+'!','warn');
-      if(perf>game.techLevel+20){game.marketShare=Math.max(1,game.marketShare-0.5);pushLog(brand.name+' vượt mặt bạn về công nghệ! Thị phần -0.5%','err');}}});
+      brand.share=Math.min(40,brand.share+0.5);
+      if(perf>game.techLevel+20){game.marketShare=Math.max(1,game.marketShare-0.5);pushLog(brand.name+' vượt mặt bạn về công nghệ! Thị phần -0.5%','err');}}
+  });
 }
 function processAutoRepair(){
   if(!hasEmployee('autoRepair')||!game.repairs.length)return;
@@ -3217,13 +3291,12 @@ function renderWeb(){
   html+='<div class="browser-content">';
   if(game.webWikiPage){
     html+=renderWikiPage(game.webWikiPage);
-    html+='<div style="margin-top:16px"><button class="btn btn-ghost btn-sm" onclick="closeWiki()">← Quay lại tìm kiếm</button></div>';
+    html+='<div style="margin-top:16px"><button class="btn btn-ghost btn-sm" onclick="closeWiki()">← Quay lại</button></div>';
   } else {
     html+='<div class="google-logo">Techgle</div>';
-    html+='<input type="text" class="search-box" placeholder="Tìm kiếm linh kiện, đối thủ..." id="web-search-input" value="'+(game.webSearchQuery||'')+'" onkeydown="if(event.key===\'Enter\')performWebSearch(this.value)">';
+    html+='<input type="text" class="search-box" placeholder="Tìm kiếm linh kiện, đối thủ AI..." id="web-search-input" value="'+(game.webSearchQuery||'')+'" onkeydown="if(event.key===\'Enter\')performWebSearch(this.value)">';
     html+='<div style="text-align:center;margin-bottom:14px"><button class="btn btn-p" onclick="performWebSearch(document.getElementById(\'web-search-input\').value)">Tìm kiếm</button> ';
-    html+='<button class="btn btn-ghost" onclick="performWebSearch(\'\')">Xem tất cả</button> ';
-    html+='<button class="btn btn-ghost" onclick="showCompetitorDirectory()">Danh bạ đối thủ</button></div>';
+    html+='<button class="btn btn-ghost" onclick="performWebSearch(\'\')">Xem tất cả</button></div>';
     if(game.webSearchResults.length){
       html+='<div style="margin-top:10px">';
       game.webSearchResults.forEach(r=>{
@@ -3233,11 +3306,43 @@ function renderWeb(){
       });
       html+='</div>';
     } else {
-      html+='<div class="empty-state">Nhập từ khóa để tra cứu thông tin linh kiện</div>';
+      html+='<div class="empty-state">Nhập từ khóa để tra cứu linh kiện hoặc đối thủ</div>';
     }
+    html+=renderLeaderboard();
   }
   html+='</div></div>';
   el.innerHTML=html;
+}
+
+function renderLeaderboard(){
+  let html='<div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">';
+  html+='<h4 style="color:var(--p);margin-bottom:10px">Bảng Xếp Hạnh Thị Trường</h4>';
+  const all=[];
+  all.push({name:'Tech Empire (Bạn)',share:game.marketShare,revenue:game.totalRevenue,techLevel:game.techLevel,status:'player',type:'player'});
+  game.competitors.forEach(c=>{all.push({name:c.name,share:c.share,revenue:c.revenue,techLevel:0,status:c.status,type:'competitor'});});
+  game.aiBrands.filter(b=>!b.bankrupt).forEach(b=>{all.push({name:b.name,share:b.share,revenue:b.revenue,techLevel:b.techLevel,status:b.status,type:'ai'});});
+  all.sort((a,b)=>b.share-a.share);
+  const aliveAi=game.aiBrands.filter(b=>!b.bankrupt).length;
+  const bankruptAi=game.aiBrands.filter(b=>b.bankrupt).length;
+  html+='<div class="news-stats" style="margin-bottom:10px"><div class="news-stat"><span class="v" style="color:var(--ok)">'+all.length+'</span><span class="l">Tổng công ty</span></div>';
+  html+='<div class="news-stat"><span class="v" style="color:var(--ac)">'+aliveAi+'</span><span class="l">Hãng AI hoạt động</span></div>';
+  html+='<div class="news-stat"><span class="v" style="color:var(--err)">'+bankruptAi+'</span><span class="l">Đã phá sản</span></div></div>';
+  all.forEach((c,i)=>{
+    const isPlayer=c.type==='player';
+    const statusClass=c.status==='player'?'':c.status;
+    const statusText=c.status==='player'?'Bạn':c.status==='rising'?'Đang tăng':c.status==='falling'?'Đang giảm':c.status==='stuck'?'Bị kẹt':'Ổn định';
+    const barColor=isPlayer?'var(--p)':c.status==='rising'?'var(--ok)':c.status==='falling'||c.status==='stuck'?'var(--err)':'var(--s)';
+    html+='<div class="comp-card" style="'+(isPlayer?'border-color:var(--p);border-width:2px':'')+'">';
+    html+='<div class="comp-header"><span class="comp-name">#'+(i+1)+' '+c.name;
+    if(c.type==='ai')html+=' <span style="font-size:9px;color:var(--txt3);background:var(--bg);padding:1px 5px;border-radius:3px">AI</span>';
+    html+='</span><span class="comp-status '+statusClass+'">'+statusText+'</span></div>';
+    html+='<div class="comp-bar"><div class="fill" style="width:'+Math.min(100,c.share*2.5)+'%;background:'+barColor+'"></div></div>';
+    html+='<div class="comp-meta"><span>Thị phần: '+Math.round(c.share)+'%</span><span>Doanh thu: '+fmtMoney(c.revenue||0)+'</span>';
+    if(c.techLevel>0)html+='<span>Công nghệ: '+c.techLevel+'</span>';
+    html+='</div></div>';
+  });
+  html+='</div>';
+  return html;
 }
 
 function performWebSearch(query){
@@ -3245,16 +3350,19 @@ function performWebSearch(query){
   game.webWikiPage=null;
   const q=query.toLowerCase().trim();
   let results=[];
-  // Search catalog items
   CATALOG.forEach(item=>{
     if(!q || item.n.toLowerCase().includes(q) || CAT_LABELS[item.cat].toLowerCase().includes(q)){
       results.push({id:item.id,title:item.n,desc:CAT_LABELS[item.cat]+' · Era '+item.e+' · Perf '+item.perf+(item.watt?' · '+item.watt+'W':'')+(item.vram?' · '+item.vram+'GB VRAM':'')});
     }
   });
-  // Search competitors
   game.competitors.forEach(c=>{
     if(!q || c.name.toLowerCase().includes(q) || q.includes('doi thu') || q.includes('competitor')){
-      results.push({id:'comp_'+c.id,title:c.name+' - Công ty công nghệ',desc:'Thị phần: '+Math.round(c.share)+'% · Doanh thu: '+fmtMoney(c.revenue)+' · Trạng thái: '+c.status});
+      results.push({id:'comp_'+c.id,title:c.name+' - Công ty đối thủ',desc:'Thị phần: '+Math.round(c.share)+'% · Doanh thu: '+fmtMoney(c.revenue)+' · Trạng thái: '+c.status});
+    }
+  });
+  game.aiBrands.filter(b=>!b.bankrupt).forEach(b=>{
+    if(!q || b.name.toLowerCase().includes(q) || q.includes('ai') || q.includes('hang')){
+      results.push({id:'aibrand_'+b.id,title:b.name+' - Hãng AI',desc:'Thị phần: '+Math.round(b.share)+'% · Doanh thu: '+fmtMoney(b.revenue)+' · Công nghệ: '+b.techLevel+' · Trạng thái: '+(b.status==='rising'?'Đang tăng':b.status==='falling'?'Đang giảm':b.status==='stuck'?'Bị kẹt':'Ổn định')});
     }
   });
   game.webSearchResults=results.slice(0,30);
@@ -3266,6 +3374,10 @@ function openWikiPage(id){
     const compId=parseInt(id.replace('comp_',''));
     const c=game.competitors.find(x=>x.id===compId);
     if(c) game.webWikiPage={type:'competitor',data:c};
+  } else if(id.startsWith('aibrand_')){
+    const brandId=parseInt(id.replace('aibrand_',''));
+    const b=game.aiBrands.find(x=>x.id===brandId);
+    if(b) game.webWikiPage={type:'aibrand',data:b};
   } else {
     const item=getItemById(id);
     if(item) game.webWikiPage={type:'item',data:item};
@@ -3317,14 +3429,35 @@ function renderWikiPage(page){
     else html+='Hoạt động ổn định với thị phần duy trì.';
     html+='</p></div>';
     return html;
+  } else if(page.type==='aibrand'){
+    const b=page.data;
+    let html='<div class="wiki-page"><h4>'+b.name+' <span style="font-size:11px;color:var(--txt3)">Hãng AI</span></h4>';
+    html+='<div class="wiki-spec">';
+    html+='<div class="ws-row"><span class="ws-label">Thị phần</span><span class="ws-val">'+Math.round(b.share)+'%</span></div>';
+    html+='<div class="ws-row"><span class="ws-label">Doanh thu</span><span class="ws-val">'+fmtMoney(b.revenue)+'</span></div>';
+    html+='<div class="ws-row"><span class="ws-label">Mức công nghệ</span><span class="ws-val">'+b.techLevel+'</span></div>';
+    html+='<div class="ws-row"><span class="ws-label">Lĩnh vực</span><span class="ws-val">'+CAT_LABELS[b.cat]+'</span></div>';
+    html+='<div class="ws-row"><span class="ws-label">Trạng thái</span><span class="ws-val">'+(b.status==='rising'?'Đang tăng trưởng':b.status==='falling'?'Đang suy giảm':b.status==='stuck'?'Bị kẹt':'Ổn định')+'</span></div>';
+    html+='<div class="ws-row"><span class="ws-label">Ngày gia nhập</span><span class="ws-val">Ngày '+b.foundedDay+'</span></div>';
+    html+='<div class="ws-row"><span class="ws-label">Hoạt động</span><span class="ws-val">'+b.daysActive+' ngày</span></div>';
+    html+='</div>';
+    html+='<p style="margin-top:10px;color:var(--txt2)">'+b.name+' là một hãng AI chuyên sản xuất '+CAT_LABELS[b.cat]+'. ';
+    if(b.status==='rising') html+='Đang trên đà tăng trưởng và cạnh tranh mạnh.';
+    else if(b.status==='falling') html+='Đang suy giảm, nguy cơ phá sản cao nếu không phục hồi.';
+    else if(b.status==='stuck') html+='Bị kẹt công nghệ, cần đột phá để sinh tồn.';
+    else html+='Hoạt động ổn định trên thị trường.';
+    html+='</p></div>';
+    return html;
   }
   return '<div class="empty-state">Không tìm thấy thông tin</div>';
 }
 
 function showCompetitorDirectory(){
   let html='<div class="wiki-page"><h4>Danh bạ Công ty Công nghệ - Bảng xếp hạng thị phần</h4>';
-  html+='<div class="sub">Xếp hạng các công ty đối thủ cùng người chơi trên thị trường.</div>';
-  const all=[{name:'Tech Empire (Bạn)',share:game.marketShare,revenue:game.totalRevenue,status:'player'},...game.competitors];
+  html+='<div class="sub">Xếp hạng tất cả công ty trên thị trường.</div>';
+  const all=[{name:'Tech Empire (Bạn)',share:game.marketShare,revenue:game.totalRevenue,status:'player'}];
+  game.competitors.forEach(c=>all.push({name:c.name,share:c.share,revenue:c.revenue,status:c.status}));
+  game.aiBrands.filter(b=>!b.bankrupt).forEach(b=>all.push({name:b.name,share:b.share,revenue:b.revenue,status:b.status}));
   all.sort((a,b)=>b.share-a.share);
   all.forEach((c,i)=>{
     const statusClass=c.status==='player'?'stable':c.status;
@@ -4072,6 +4205,7 @@ function restoreGameState(state){
   if(!game.employees)game.employees=[];
   if(!game.partners)game.partners=initPartners();
   if(!game.aiBrands)game.aiBrands=initAiBrands();
+  game.aiBrands.forEach(b=>{if(b.bankrupt===undefined)b.bankrupt=false;if(b.share===undefined)b.share=5;if(b.revenue===undefined)b.revenue=2000;if(b.status===undefined)b.status='stable';if(b.foundedDay===undefined)b.foundedDay=1;if(b.daysActive===undefined)b.daysActive=0;});
   if(!game.stocks)game.stocks=initStocks();
   if(!game.log)game.log=[];
   game.newsFilter=game.newsFilter||'all';
