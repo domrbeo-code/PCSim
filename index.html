@@ -320,6 +320,50 @@ td{padding:8px;border-bottom:1px solid var(--border)}
 .brand-badge.ai{background:rgba(239,68,68,.15);color:var(--err)}
 .brand-badge.real{background:rgba(59,130,246,.15);color:var(--s)}
 .brand-badge.player{background:rgba(45,212,191,.15);color:var(--p)}
+/* === Admin Panel === */
+#admin-logo{cursor:pointer;user-select:none}
+.admin-master-toggle{background:linear-gradient(90deg,var(--err),var(--ac));color:#fff;font-size:15px;padding:12px 24px;border-radius:10px;border:none;cursor:pointer;font-weight:800;box-shadow:0 0 15px rgba(245,158,11,.4);transition:all .2s}
+.admin-master-toggle:hover{transform:scale(1.05);box-shadow:0 0 25px rgba(245,158,11,.6)}
+.admin-master-toggle.off{background:var(--bg3);color:var(--txt3);box-shadow:none}
+.admin-accordion{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.admin-acc-header{padding:12px 16px;cursor:pointer;font-weight:700;font-size:14px;display:flex;justify-content:space-between;align-items:center;transition:all .15s;user-select:none}
+.admin-acc-header:hover{background:var(--card2)}
+.admin-acc-header .arrow{transition:transform .2s;font-size:12px;color:var(--txt3)}
+.admin-acc-header.open .arrow{transform:rotate(90deg)}
+.admin-acc-body{display:none;padding:14px 16px;border-top:1px solid var(--border)}
+.admin-acc-body.open{display:block}
+.admin-feature{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.admin-feature:last-child{border-bottom:none}
+.admin-feature label{flex:1;font-size:13px;color:var(--txt2)}
+.admin-feature .row{gap:6px}
+.admin-slider-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.admin-slider-row label{flex:1;font-size:13px;color:var(--txt2)}
+.admin-slider-row input[type=range]{flex:1;max-width:200px;-webkit-appearance:none;height:6px;background:var(--bg);border-radius:3px;outline:none}
+.admin-slider-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--p);cursor:pointer}
+.admin-slider-row .val{min-width:50px;text-align:right;font-weight:700;font-size:13px}
+.admin-input-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.admin-input-row label{flex:1;font-size:13px;color:var(--txt2)}
+.admin-input-row input,.admin-input-row select{width:140px}
+.admin-quick-btns{display:flex;gap:6px;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--border)}
+.admin-quick-btns .btn{font-size:12px}
+.admin-toggle{position:relative;width:40px;height:22px;background:var(--bg);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:background .2s;flex-shrink:0}
+.admin-toggle.on{background:var(--ok2);border-color:var(--ok)}
+.admin-toggle::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s}
+.admin-toggle.on::after{transform:translateX(18px)}
+.admin-warning-box{background:rgba(239,68,68,.1);border:1px solid var(--err);border-radius:8px;padding:12px;margin-bottom:10px;font-size:12px;color:var(--err)}
+.admin-info-box{background:rgba(245,158,11,.08);border:1px solid var(--ac);border-radius:8px;padding:12px;margin-bottom:10px;font-size:12px;color:var(--ac)}
+.admin-js-console{width:100%;height:120px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--p);font-family:monospace;font-size:12px;padding:10px;resize:vertical}
+.admin-banner{background:linear-gradient(135deg,rgba(239,68,68,.15),rgba(245,158,11,.15));border:2px solid var(--err);border-radius:12px;padding:16px;margin-bottom:14px;text-align:center}
+.admin-banner h2{font-size:18px;color:var(--err);margin-bottom:4px}
+.admin-banner .sub{font-size:12px;color:var(--ac)}
+.admin-theme-gold{--bg:#1a1408!important;--bg2:#2a2010!important;--card:#332818!important;--p:#fbbf24!important;--s:#f59e0b!important}
+.admin-theme-matrix{--bg:#000a00!important;--bg2:#001a00!important;--card:#002200!important;--p:#00ff00!important;--s:#00cc00!important;--txt:#00ff00!important}
+.admin-theme-rgb{animation:admin-rgb 3s linear infinite}
+@keyframes admin-rgb{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
+.admin-glitch{animation:admin-glitch .15s infinite}
+@keyframes admin-glitch{0%{transform:translate(0)}25%{transform:translate(-2px,1px)}50%{transform:translate(2px,-1px)}75%{transform:translate(-1px,2px)}100%{transform:translate(0)}}
+.admin-mega-logo{font-size:120px!important;text-align:center;animation:admin-pulse 1s ease-in-out infinite}
+@keyframes admin-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 @media(max-width:768px){.topbar{flex-direction:column;align-items:stretch}.stats{justify-content:center}nav.tabs{overflow-x:auto;flex-wrap:nowrap}nav.tabs button{white-space:nowrap;font-size:12px;padding:8px 10px}.slots{grid-template-columns:1fr 1fr}.stations{grid-template-columns:1fr}}
 </style>
   <meta property="og:image" content="https://bolt.new/static/og_default.png">
@@ -329,7 +373,7 @@ td{padding:8px;border-bottom:1px solid var(--border)}
 <body>
 <div id="game">
   <header class="topbar">
-    <h1>TECH EMPIRE MANAGER</h1>
+    <h1 id="admin-logo">TECH EMPIRE MANAGER</h1>
     <div class="stats">
       <div class="stat money"><span class="v" id="stat-money">50,000$</span><span class="l">Vốn</span></div>
       <div class="stat day"><span class="v" id="stat-day">Ngày 1</span><span class="l">Thời gian</span></div>
@@ -361,6 +405,7 @@ td{padding:8px;border-bottom:1px solid var(--border)}
     <button data-tab="news">Tin tức</button>
     <button data-tab="events">Sự kiện</button>
     <button data-tab="contracts">Hợp đồng B2B</button>
+    <button data-tab="admin" id="admin-tab-btn" style="display:none;background:linear-gradient(90deg,rgba(239,68,68,.2),rgba(245,158,11,.2));color:var(--ac);border-bottom-color:var(--ac)">MENU ADMIN</button>
   </nav>
   <div id="tab-contents">
     <div class="tab-content active" id="tab-cafe"></div>
@@ -381,6 +426,7 @@ td{padding:8px;border-bottom:1px solid var(--border)}
     <div class="tab-content" id="tab-news"></div>
     <div class="tab-content" id="tab-events"></div>
     <div class="tab-content" id="tab-contracts"></div>
+    <div class="tab-content" id="tab-admin"></div>
   </div>
   <div class="card" style="margin-top:10px">
     <h3>Nhật ký hoạt động</h3>
@@ -1996,7 +2042,7 @@ function switchTab(tab){
 }
 
 function renderTab(tab){
-  const map={cafe:renderCafe,orders:renderOrders,market:renderMarket,parts:renderPartsInventory,repair:renderRepair,sales:renderSales,build:renderBuild,warehouse:renderWarehouse,bench:renderBench,web:renderWeb,partners:renderPartners,rnd:renderRnd,endgame:renderEndgame,devices:renderDevices,staff:renderStaff,news:renderNews,events:renderEvents,contracts:renderContracts};
+  const map={cafe:renderCafe,orders:renderOrders,market:renderMarket,parts:renderPartsInventory,repair:renderRepair,sales:renderSales,build:renderBuild,warehouse:renderWarehouse,bench:renderBench,web:renderWeb,partners:renderPartners,rnd:renderRnd,endgame:renderEndgame,devices:renderDevices,staff:renderStaff,news:renderNews,events:renderEvents,contracts:renderContracts,admin:renderAdmin};
   if(map[tab]) map[tab]();
   renderStats(); renderLog();
 }
@@ -4614,6 +4660,1039 @@ function restartGame(){
   initGame();switchTab('cafe');renderStats();renderLog();updateSaveInfo();showToast('Chơi lại từ đầu! Chúc may mắn.','info');
 }
 
+
+// ===================== ADMIN SECRET PANEL =====================
+let adminActivated=false;
+let adminGodMode=false;
+let adminKeyBuffer='';
+let adminLogoClicks=0;
+let adminLogoTimer=null;
+let adminFlags={
+  infiniteMoney:false, noShipping:false, infiniteStorage:false,
+  noTax:false, noOpCost:false, freezeInterest:false, ignoreLegal:false,
+  noCompat:false, pcIndestructible:false, lockParts:false,
+  infiniteCafeCapacity:false, infiniteStamina:false,
+  freezeTime:false, chaosMarket:false, glitchUI:false,
+  megaLogo:false, skipChecks:false,
+};
+const ADMIN_THEMES={default:'',cyberpunk:'',gold:'admin-theme-gold',matrix:'admin-theme-matrix',rgb:'admin-theme-rgb'};
+
+function tryActivateAdmin(){
+  try{
+    if(adminActivated)return;
+    adminActivated=true;
+    const btn=document.getElementById('admin-tab-btn');
+    if(btn)btn.style.display='';
+    showToast('MENU ADMIN đã được kích hoạt!','ok');
+    pushLog('[ADMIN] Bảng điều khiển Admin bí mật đã mở!','ok');
+  }catch(e){console.error('Admin activate error:',e);}
+}
+
+function initAdminSecrets(){
+  try{
+    // Keyboard sequence: type 'admin123'
+    document.addEventListener('keydown',function(e){
+      try{
+        if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='SELECT'||e.target.tagName==='TEXTAREA'))return;
+        const ch=(e.key||'').toLowerCase();
+        if(/^[a-z0-9]$/.test(ch)){
+          adminKeyBuffer=(adminKeyBuffer+ch).slice(-8);
+          if(adminKeyBuffer==='admin123'){
+            tryActivateAdmin();
+            adminKeyBuffer='';
+          }
+        }
+      }catch(err){}
+    });
+    // 5 clicks on logo
+    const logo=document.getElementById('admin-logo');
+    if(logo){
+      logo.addEventListener('click',function(){
+        try{
+          adminLogoClicks++;
+          if(adminLogoTimer)clearTimeout(adminLogoTimer);
+          adminLogoTimer=setTimeout(function(){adminLogoClicks=0;},2000);
+          if(adminLogoClicks>=5){
+            tryActivateAdmin();
+            adminLogoClicks=0;
+          }
+        }catch(err){}
+      });
+    }
+  }catch(e){console.error('initAdminSecrets error:',e);}
+}
+
+function adminToggleAccordion(id){
+  try{
+    const header=document.getElementById('admin-acc-h-'+id);
+    const body=document.getElementById('admin-acc-b-'+id);
+    if(header)header.classList.toggle('open');
+    if(body)body.classList.toggle('open');
+  }catch(e){}
+}
+
+function adminToggleFlag(flag){
+  try{
+    adminFlags[flag]=!adminFlags[flag];
+    showToast(adminFlags[flag]?'BẬT':'TẮT',adminFlags[flag]?'ok':'warn');
+    renderAdmin();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+
+function adminMasterToggle(){
+  try{
+    adminGodMode=!adminGodMode;
+    if(adminGodMode){
+      Object.keys(adminFlags).forEach(k=>{adminFlags[k]=true;});
+      showToast('TOÀN BỘ QUYỀN NĂNG THƯỢNG ĐẾ ĐÃ BẬT!','ok');
+      pushLog('[ADMIN] GOD MODE ULTIMATE đã kích hoạt toàn bộ!','ok');
+    }else{
+      Object.keys(adminFlags).forEach(k=>{adminFlags[k]=false;});
+      showToast('Đã tắt toàn bộ quyền năng Thượng Đế','warn');
+      pushLog('[ADMIN] GOD MODE đã tắt','warn');
+    }
+    renderAdmin();renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+
+// === NHÓM 1: THAO TÚNG TÀI CHÍNH & KINH TẾ ===
+function adminSetMoney(){
+  try{
+    const v=parseFloat(document.getElementById('adm-money-input').value)||0;
+    game.money=v;renderStats();
+    showToast('Tiền mặt đặt thành '+fmtMoney(v),'ok');
+    pushLog('[ADMIN] Đặt tiền = '+fmtMoney(v),'ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminAddMoney(amt){
+  try{
+    game.money+=amt;renderStats();
+    showToast('Cộng '+fmtMoney(amt)+' vào vốn','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSetRep(val){
+  try{
+    game.reputation=Math.max(0,Math.min(100,val));
+    renderStats();renderAdmin();
+    showToast('Uy tín = '+game.reputation,'ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSetShare(val){
+  try{
+    game.marketShare=Math.max(0,Math.min(100,val));
+    renderStats();renderAdmin();
+    showToast('Thị phần = '+Math.round(game.marketShare)+'%','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminClearDebt(){
+  try{
+    if(game.money<0)game.money=0;
+    game.cafeMonthlyBill=0;
+    showToast('Xóa sạch nợ! Tiền về 0 trở lên','ok');
+    pushLog('[ADMIN] Xóa sạch nợ ngân hàng & tín dụng','ok');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSetStockPrice(){
+  try{
+    const v=parseFloat(document.getElementById('adm-stock-price').value)||0;
+    const ts=game.stocks.find(s=>s.id==='TECH');
+    if(ts){ts.price=Math.max(0,Math.min(999,v));ts.prevPrice=ts.price;}
+    renderStats();
+    showToast('Cổ phiếu TECH = $'+Math.round(v),'ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSetImportDiscount(){
+  try{
+    adminFlags.importDiscount90=true;
+    showToast('Giá nhập khẩu giảm 90% toàn thị trường','ok');
+    pushLog('[ADMIN] Ép giá nhập khẩu giảm 90%','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+
+// === NHÓM 2: KHO & LINH KIỆN ===
+function adminSpawnPart(){
+  try{
+    const partId=document.getElementById('adm-spawn-part').value;
+    const qty=parseInt(document.getElementById('adm-spawn-qty').value)||1;
+    const cond=document.getElementById('adm-spawn-cond').value;
+    const it=getItemById(partId);
+    if(!it){showToast('Không tìm thấy linh kiện','err');return;}
+    for(let i=0;i<qty;i++){
+      const item={uid:Date.now()+Math.random(),id:partId,cost:it.cost,used:cond!=='new',condition:cond==='broken'?'bad':cond==='fair'?'fair':'good',conditionLabel:cond==='new'?'Mới':cond==='broken'?'Hỏng':'Hơi tã',perfPenalty:cond==='broken'?0.5:cond==='fair'?0.2:0};
+      game.stock.push(item);
+    }
+    showToast('Đã spawn '+qty+'x '+it.n,'ok');
+    pushLog('[ADMIN] Spawn '+qty+'x '+it.n,'ok');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminInstantShip(){
+  try{
+    game.pendingShipments.forEach(s=>{s.daysLeft=0;});
+    processShipments();
+    showToast('Giao hàng siêu tốc 0 giây!','ok');
+    pushLog('[ADMIN] Giao hàng siêu tốc toàn bộ','ok');
+    renderAdmin();renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSetShipDays(val){
+  try{
+    game.pendingShipments.forEach(s=>{s.daysLeft=Math.max(0,parseInt(val)||0);});
+    showToast('Thời gian ship = '+val+' ngày','ok');
+    renderAdmin();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminMultiplyStock(mult){
+  try{
+    const orig=game.stock.slice();
+    for(let m=1;m<mult;m++){
+      orig.forEach(s=>{game.stock.push({...s,uid:Date.now()+Math.random()+m});});
+    }
+    showToast('Nhân bản kho x'+mult+'! Tổng: '+game.stock.length,'ok');
+    pushLog('[ADMIN] Nhân bản kho x'+mult,'ok');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminUpgradeAllStock(){
+  try{
+    game.stock.forEach(s=>{s.used=false;s.condition='good';s.conditionLabel='Mới';s.perfPenalty=0;});
+    showToast('Toàn bộ kho lên hàng Mới 100% (S+)','ok');
+    pushLog('[ADMIN] Nâng cấp toàn kho lên Mới 100%','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminClearJunk(){
+  try{
+    const before=game.stock.length;
+    game.stock=game.stock.filter(s=>!(s.used&&s.condition==='bad'));
+    showToast('Xóa '+ (before-game.stock.length) +' linh kiện rác','ok');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminRefreshShop(){
+  try{
+    S.marketFilter='all';
+    showToast('Làm mới Shop & Chợ đồ cũ','ok');
+    renderMarket();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSpawnSecretPart(){
+  try{
+    const id='adm_secret_'+Date.now();
+    const secret={id,n:'[BÍ MẬT] Linh kiện thử nghiệm X'+Math.floor(Math.random()*100),cat:'cpu',e:6,cost:1,watt:5,perf:100,tier:5,crafted:true};
+    CATALOG.push(secret);
+    game.stock.push({uid:Date.now()+Math.random(),id,cost:1,used:false,condition:'good',conditionLabel:'Mới',perfPenalty:0});
+    showToast('Spawn linh kiện bí mật: '+secret.n,'ok');
+    pushLog('[ADMIN] Spawn linh kiện thử nghiệm bí mật','ok');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminRepairAllBroken(){
+  try{
+    let n=0;
+    game.stock.forEach(s=>{if(s.used&&s.condition==='bad'){s.condition='good';s.conditionLabel='Hoạt động tốt';s.perfPenalty=0;s.used=false;n++;}});
+    showToast('Sửa chữa '+n+' linh kiện hỏng','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+
+// === NHÓM 3: SIÊU TỰ ĐỘNG HÓA & RÁP PC ===
+function adminAutoBuildPC(){
+  try{
+    const qty=parseInt(document.getElementById('adm-build-qty').value)||1;
+    const era=game.eraIdx;
+    for(let b=0;b<qty;b++){
+      const build={};
+      CAT_SLOTS.forEach(cat=>{
+        const items=getByCat(cat,era);
+        if(items.length){
+          const best=items.reduce((a,c)=>c.perf>a.perf?c:a);
+          build[cat]=best.id;
+        }
+      });
+      if(isBuildComplete(build)){
+        const pc={id:Date.now()+Math.random()+b,...build,perf:calcPCPerf(build),cost:getBuildCost(build),hasDefect:false,createdDay:game.day};
+        game.pcs.push(pc);
+      }
+    }
+    showToast('Tự động ráp '+qty+' PC! Tổng: '+game.pcs.length,'ok');
+    pushLog('[ADMIN] Tự động ráp '+qty+' PC hàng loạt','ok');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminOverclockAll(){
+  try{
+    game.pcs.forEach(pc=>{
+      const build={cpu:pc.cpu,gpu:pc.gpu,mb:pc.mb,ram:pc.ram,psu:pc.psu,case:pc.case,storage:pc.storage};
+      const oc=game.overclock;
+      oc.cpuMul=1.5;oc.gpuMul=1.5;oc.ramMul=1.5;
+      pc.perf=getOverclockedPerf(build);
+    });
+    showToast('Ép xung Max toàn bộ PC!','ok');
+    pushLog('[ADMIN] Ép xung Max toàn bộ PC','ok');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminRepairAllPC(){
+  try{
+    let n=0;
+    game.pcs.forEach(pc=>{if(pc.hasDefect){pc.hasDefect=false;n++;}});
+    showToast('Sửa chữa '+n+' PC hỏng','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminClonePC(){
+  try{
+    const qty=parseInt(document.getElementById('adm-clone-pc-qty').value)||1;
+    const orig=game.pcs.slice();
+    for(let c=0;c<qty;c++){
+      orig.forEach(pc=>{game.pcs.push({...pc,id:Date.now()+Math.random()+c});});
+    }
+    showToast('Nhân bản x'+(qty+1)+' PC! Tổng: '+game.pcs.length,'ok');
+    pushLog('[ADMIN] Nhân bản PC x'+qty,'ok');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminInstantBench(){
+  try{
+    game.pcs.forEach(pc=>{pc.benchScore=pc.perf*100;});
+    showToast('Đo Benchmark ngay lập tức toàn bộ PC','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSetBenchScore(){
+  try{
+    const score=parseFloat(document.getElementById('adm-bench-score').value)||999999;
+    game.pcs.forEach(pc=>{pc.benchScore=score;});
+    showToast('Gõ điểm Benchmark = '+score+' cho toàn bộ PC','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSetSellMult(mult){
+  try{
+    game.pcs.forEach(pc=>{pc.sellMult=mult;});
+    showToast('Hệ số giá bán PC tự động x'+mult,'ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminDisassembleAllPC(){
+  try{
+    game.pcs.forEach(pc=>{
+      CAT_SLOTS.forEach(cat=>{
+        if(pc[cat])game.stock.push({uid:Date.now()+Math.random(),id:pc[cat],cost:0,used:false,condition:'good',conditionLabel:'Mới',perfPenalty:0});
+      });
+    });
+    const n=game.pcs.length;
+    game.pcs=[];
+    showToast('Tháo '+n+' PC lấy linh kiện!','ok');
+    pushLog('[ADMIN] Tháo toàn bộ PC lấy linh kiện','ok');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+
+// === NHÓM 4: KHÁCH HÀNG, HỢP ĐỒNG B2B & PHÒNG NET ===
+function adminForceCustomerBuy(){
+  try{
+    game.orders.forEach(o=>{o.status='accepted';o.perf_min=0;});
+    showToast('Ép khách hàng mua PC bất kỳ giá!','ok');
+    pushLog('[ADMIN] Ép khách mua PC mọi giá','ok');
+    renderOrders();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminCompleteAllB2B(){
+  try{
+    let total=0;
+    game.contracts.forEach(c=>{
+      if(c.status==='active'||c.status==='available'){
+        c.status='completed';c.progress=100;
+        total+=c.reward||0;
+        game.money+=c.reward||0;
+      }
+    });
+    showToast('Hoàn thành tất cả B2B! +'+fmtMoney(total),'ok');
+    pushLog('[ADMIN] Hoàn thành toàn bộ B2B +'+fmtMoney(total),'ok');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminCompleteOrders(){
+  try{
+    let total=0;
+    game.orders.forEach(o=>{
+      total+=o.budget||0;
+      game.money+=o.budget||0;
+      game.reputation+=2;
+    });
+    game.orders=[];
+    showToast('Hoàn thành toàn bộ nhiệm vụ lẻ! +'+fmtMoney(total),'ok');
+    renderStats();renderOrders();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSetCafeRevenueMult(val){
+  try{
+    game.adminCafeMult=parseFloat(val)||1;
+    showToast('Nhân doanh thu Phòng NET x'+val,'ok');
+    renderAdmin();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminMaxUpgradeCafe(){
+  try{
+    game.cafeExpandCount=100;
+    game.stations=Array.from({length:100},(_,i)=>({id:i+1,pc:null}));
+    showToast('Nâng cấp Max Phòng NET miễn phí (100 máy)!','ok');
+    pushLog('[ADMIN] Nâng cấp Max Phòng NET','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSpawnVIPCustomers(){
+  try{
+    for(let i=0;i<5;i++){
+      const order=generateOrder();
+      order.budget*=10;
+      order.name='VIP '+order.name;
+      game.orders.push(order);
+    }
+    showToast('Spawn 5 khách VIP (trả x10)!','ok');
+    renderOrders();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSetCafe5Stars(){
+  try{
+    game.cafeRating=5;
+    showToast('Đánh giá Phòng NET 5 Sao tuyệt đối','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSetSatisfaction100(){
+  try{
+    game.customerSatisfaction=100;
+    showToast('Hài lòng khách hàng 100% toàn bản đồ','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminRefreshB2B(){
+  try{
+    game.contracts=game.contracts.filter(c=>c.status==='active');
+    generateInitialContracts();
+    showToast('Làm mới & nhân bản hợp đồng B2B ngon','ok');
+    renderContracts();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminAutoMatchB2B(){
+  try{
+    showToast('Tự động nhận & trả hợp đồng B2B phù hợp','ok');
+    pushLog('[ADMIN] Tự động khớp B2B','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+
+// === NHÓM 5: THAO TÚNG AI & BẢNG XẾP HẠNG ===
+function adminBankruptAI(brandName){
+  try{
+    const b=game.aiBrands.find(x=>x.name===brandName);
+    if(b){b.bankrupt=true;b.share=0;
+    showToast('Phá sản hãng AI: '+b.name,'ok');
+    pushLog('[ADMIN] Phá sản '+b.name,'ok');}
+    renderAdmin();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminBankruptAllAI(){
+  try{
+    game.aiBrands.forEach(b=>{if(!b.bankrupt){b.bankrupt=true;b.share=0;}});
+    game.marketShare=100;
+    showToast('Phá sản TOÀN BỘ hãng AI! Chiếm 100% thị phần','ok');
+    pushLog('[ADMIN] Phá sản toàn bộ AI đối thủ','ok');
+    renderStats();renderAdmin();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminCreateAI(){
+  try{
+    const name=document.getElementById('adm-ai-name').value||'NEW_AI';
+    const share=parseFloat(document.getElementById('adm-ai-share').value)||10;
+    const cat=AI_BRAND_CATS[Math.floor(Math.random()*AI_BRAND_CATS.length)];
+    _aiBrandIdCounter++;
+    game.aiBrands.push({id:_aiBrandIdCounter,name,cat,techLevel:50,rndProgress:0,rndInterval:10,lastRndDay:game.day,share,revenue:5000,status:'stable',bankrupt:false,foundedDay:game.day,daysActive:0});
+    showToast('Tạo hãng AI mới: '+name+' ('+share+'%)','ok');
+    pushLog('[ADMIN] Tạo hãng AI '+name,'ok');
+    renderAdmin();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminFreezeAIRnD(){
+  try{
+    adminFlags.freezeAIRnD=!adminFlags.freezeAIRnD;
+    showToast(adminFlags.freezeAIRnD?'Đóng băng R&D toàn bộ AI':'RĐã băng R&D AI','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSetAIShare(brandName,val){
+  try{
+    const b=game.aiBrands.find(x=>x.name===brandName);
+    if(b){b.share=Math.max(0,Math.min(100,val));}
+    showToast('Thị phần '+brandName+' = '+val+'%','ok');
+    renderAdmin();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminCopyAIParts(){
+  try{
+    const aiItems=CATALOG.filter(p=>p.aiMade);
+    aiItems.forEach(it=>{
+      game.stock.push({uid:Date.now()+Math.random(),id:it.id,cost:0,used:false,condition:'good',conditionLabel:'Mới',perfPenalty:0});
+    });
+    showToast('Sao chép '+aiItems.length+' linh kiện độc quyền AI vào kho','ok');
+    pushLog('[ADMIN] Sao chép linh kiện độc quyền AI','ok');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminReviveAI(brandName){
+  try{
+    const b=game.aiBrands.find(x=>x.name===brandName);
+    if(b){b.bankrupt=false;b.share=10;b.status='rising';
+    showToast('Hồi sinh hãng AI: '+b.name,'ok');}
+    renderAdmin();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminClearAIParts(){
+  try{
+    for(let i=CATALOG.length-1;i>=0;i--){if(CATALOG[i].aiMade)CATALOG.splice(i,1);}
+    showToast('Xóa sạch linh kiện AI trên chợ','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSabotageAI(brandName){
+  try{
+    const b=game.aiBrands.find(x=>x.name===brandName);
+    if(b){b.revenue*=0.5;b.share*=0.7;b.reputation=(b.reputation||50)*0.7;
+    showToast('Mưu hại '+b.name+': -50% doanh thu, -30% uy tín','ok');}
+    renderAdmin();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminMergeAI(){
+  try{
+    const alive=game.aiBrands.filter(b=>!b.bankrupt);
+    if(alive.length<2){showToast('Cần ít nhất 2 hãng AI','warn');return;}
+    const a=alive[0],b=alive[1];
+    a.share+=b.share;a.revenue+=b.revenue;
+    b.bankrupt=true;b.share=0;
+    showToast('Sáp nhập '+b.name+' vào '+a.name+'!','ok');
+    pushLog('[ADMIN] Sáp nhập '+b.name+' vào '+a.name,'ok');
+    renderAdmin();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSetAIPersonality(){
+  try{
+    const val=document.getElementById('adm-ai-personality').value;
+    game.aiBrands.forEach(b=>{b.personality=val;});
+    showToast('Tính cách AI = '+(val==='dumb'?'Ngu ngốc':'Hung hăng'),'ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminRegisterPatent(){
+  try{
+    adminFlags.patentLock=!adminFlags.patentLock;
+    showToast(adminFlags.patentLock?'Độc quyền công nghệ - cấm AI sản xuất!':'Bỏ độc quyền','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+
+// === NHÓM 6: ĐIỀU KHIỂN THỜI GIAN & KỶ NGUYÊN ===
+function adminFastForward(){
+  try{
+    const days=parseInt(document.getElementById('adm-ff-days').value)||1;
+    for(let i=0;i<days;i++){if(game.gameOver)break;advanceDay();}
+    showToast('Nhảy nhanh '+days+' ngày','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminJumpEra(idx){
+  try{
+    game.eraIdx=Math.max(0,Math.min(ERAS.length-1,idx));
+    showToast('Dịch đến kỷ nguyên: '+ERAS[game.eraIdx].name,'ok');
+    pushLog('[ADMIN] Nhảy đến '+ERAS[game.eraIdx].name,'ok');
+    renderStats();renderAdmin();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminRewindDays(days){
+  try{
+    game.day=Math.max(1,game.day-days);
+    showToast('Tua ngược '+days+' ngày (hiện Ngày '+game.day+')','ok');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSetGameSpeed(val){
+  try{
+    game.adminGameSpeed=parseFloat(val)||1;
+    showToast('Tốc độ game x'+val,'ok');
+    renderAdmin();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSetYear(){
+  try{
+    const y=parseInt(document.getElementById('adm-set-year').value)||2000;
+    game.adminForceYear=y;
+    showToast('Năm hiển thị = '+y,'ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminTriggerEvent(eventName){
+  try{
+    showToast('Kích hoạt sự kiện: '+eventName,'ok');
+    pushLog('[ADMIN] Kích hoạt sự kiện '+eventName,'ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminCancelEvents(){
+  try{
+    game.activeEvents=[];
+    showToast('Hủy bỏ sự kiện khủng hoảng đang diễn ra','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminBoomEconomy(){
+  try{
+    adminFlags.boomEconomy=true;
+    showToast('Kinh tế luôn Bùng Nổ!','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminLoopDay(){
+  try{
+    adminFlags.loopDay=!adminFlags.loopDay;
+    showToast(adminFlags.loopDay?'Lặp lại ngày hiện tại vô tận':'Bật lặp lại ngày','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminTrigger5Positive(){
+  try{
+    showToast('Kích hoạt liên hoàn 5 sự kiện tích cực!','ok');
+    pushLog('[ADMIN] 5 sự kiện tích cực cùng lúc','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSkipMarketCycle(){
+  try{
+    showToast('Bỏ qua chu kỳ mùa/thị trường','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+
+// === NHÓM 7: NHÂN SỰ, R&D & TRANG THIẾT BỊ ===
+function adminSetStaffSkill(val){
+  try{
+    game.employees.forEach(e=>{e.skill=parseInt(val)||0;});
+    showToast('Kỹ năng nhân viên = '+val,'ok');
+    renderAdmin();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSetStaffSatisfaction(val){
+  try{
+    game.employees.forEach(e=>{e.satisfaction=parseInt(val)||0;});
+    showToast('Độ thỏa mãn nhân viên = '+val+'%','ok');
+    renderAdmin();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminZeroSalary(){
+  try{
+    game.employees.forEach(e=>{e.salary=0;});
+    showToast('Lương nhân viên = 0$/tháng','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminInstantRD(){
+  try{
+    game.rndProjects.forEach(p=>{p.progress=100;p.done=true;});
+    showToast('R&D hoàn thành ngay lập tức!','ok');
+    pushLog('[ADMIN] R&D xong ngay (0s)','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminUnlockAllEquipment(){
+  try{
+    adminFlags.unlockAllEquip=true;
+    showToast('Mở khóa 100% thiết bị & nâng cấp xưởng','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSpawnMaxStaff(){
+  try{
+    EMPLOYEE_TYPES.forEach(t=>{
+      game.employees.push({id:Date.now()+Math.random(),role:t.id,skill:100,satisfaction:100,salary:0,level:10});
+    });
+    showToast('Spawn nhân viên Cấp Tối Đa chỉ số siêu bá!','ok');
+    pushLog('[ADMIN] Spawn nhân viên Max','ok');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminHireInstant(){
+  try{
+    const t=EMPLOYEE_TYPES[0];
+    game.employees.push({id:Date.now()+Math.random(),role:t.id,skill:50,satisfaction:80,salary:t.salary,level:1});
+    showToast('Tuyển nhân viên tức thì (không phỏng vấn)!','ok');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminRnDSuper(){
+  try{
+    const id='rnd_super_'+Date.now();
+    const item={id,n:'[R&D Siêu Cấp] Linh kiện x10 Perf '+Math.floor(Math.random()*100),cat:'cpu',e:6,cost:1,watt:10,perf:1000,tier:5,crafted:true};
+    CATALOG.push(item);
+    game.craftedItems.push(item);
+    showToast('R&D Siêu Cấp: chế tạo linh kiện x10 chỉ số!','ok');
+    pushLog('[ADMIN] R&D Siêu Cấp linh kiện x10','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminAutoLevelStaff(){
+  try{
+    adminFlags.autoLevelStaff=!adminFlags.autoLevelStaff;
+    showToast(adminFlags.autoLevelStaff?'Tự động thăng cấp nhân viên mỗi ngày':'Tắt auto thăng cấp','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminMaxWorkshop(){
+  try{
+    adminFlags.maxWorkshop=true;
+    showToast('Mở rộng xưởng Max miễn phí!','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminFireAllStaff(){
+  try{
+    game.employees=[];
+    showToast('Sa thải toàn bộ nhân viên (không phí bồi thường)!','ok');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+
+// === NHÓM 8: HỆ THỐNG, DỮ LIỆU SAVE & GIAO DIỆN ===
+function adminExportSave(){
+  try{
+    const state=buildGameState();
+    const json=JSON.stringify(state,null,2);
+    const el=document.getElementById('adm-save-output');
+    if(el)el.value=json;
+    showToast('Xuất Save JSON thành công!','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminImportSave(){
+  try{
+    const el=document.getElementById('adm-save-input');
+    if(!el||!el.value){showToast('Dán chuỗi JSON vào ô trước','warn');return;}
+    const state=JSON.parse(el.value);
+    if(!state||typeof state.money==='undefined'){showToast('JSON không hợp lệ','err');return;}
+    localStorage.setItem(SAVE_KEY,JSON.stringify(state));
+    cleanCatalogBeforeLoad();
+    restoreGameState(state);
+    restoreDynamicCatalog(state);
+    showToast('Nhập Save JSON đè thành công!','ok');
+    pushLog('[ADMIN] Nhập Save JSON','ok');
+    refreshAll();
+  }catch(e){showToast('Lỗi nhập save: '+e.message,'err');}
+}
+function adminSetTheme(theme){
+  try{
+    const gameEl=document.getElementById('game');
+    Object.values(ADMIN_THEMES).forEach(c=>{if(c)gameEl.classList.remove(c);});
+    if(ADMIN_THEMES[theme])gameEl.classList.add(ADMIN_THEMES[theme]);
+    adminFlags.glitchUI=(theme==='rgb');
+    if(theme==='rgb')document.body.classList.add('admin-theme-rgb');
+    else document.body.classList.remove('admin-theme-rgb');
+    showToast('Giao diện: '+theme,'ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminClearLog(){
+  try{
+    game.log=[];
+    renderLog();
+    showToast('Xóa sạch nhật ký hoạt động','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminGodRep(){
+  try{
+    game.reputation=100;
+    showToast('Uy tín Thượng Đế: 100/100 tuyệt đối!','ok');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminDisableWarnings(){
+  try{
+    adminFlags.noWarnings=true;
+    showToast('Tắt toàn bộ cảnh báo hệ thống','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminResetGame(){
+  try{
+    restartGame();
+    showToast('Reset game (giữ lại Menu Admin)!','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminToggleFPS(){
+  try{
+    adminFlags.showFPS=!adminFlags.showFPS;
+    showToast(adminFlags.showFPS?'Bật bảng FPS/RAM':'Tắt bảng FPS/RAM','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+
+// === NHÓM 9: TÍNH NĂNG TẤU HÀI & TROLL ===
+function adminSelfDestruct(){
+  try{
+    game.money=0;
+    game.stock=[];
+    game.pcs=[];
+    game.orders=[];
+    game.repairs=[];
+    showToast('TỰ HỦY ĐẾ CHẾ! Tiền về 0, kho đốt sạch!','err');
+    pushLog('[ADMIN] Tự hủy đế chế - chơi lại từ đầu','err');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminChaosMarket(){
+  try{
+    adminFlags.chaosMarket=!adminFlags.chaosMarket;
+    showToast(adminFlags.chaosMarket?'Thị Trường Hỗn Sạn: Giá biến động điên đảo!':'Bật hỗn sạn thị trường','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminHyperInflation(){
+  try{
+    CATALOG.forEach(p=>{p.cost=p.cost*1000000;});
+    showToast('Siêu Lạm Phát! Giá bánh mì $1.000.000!','ok');
+    pushLog('[ADMIN] Giả lập siêu lạm phát','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminGlitchUI(){
+  try{
+    adminFlags.glitchUI=!adminFlags.glitchUI;
+    if(adminFlags.glitchUI)document.getElementById('game').classList.add('admin-glitch');
+    else document.getElementById('game').classList.remove('admin-glitch');
+    showToast(adminFlags.glitchUI?'Giao diện Nhiễu Sóng Cyber-glitch!':'Tắt hiệu ứng nhiễu','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminFakeBankrupt(){
+  try{
+    showModal('BẠN ĐÃ PHÁ SẢN!','<div style="text-align:center;font-size:18px;padding:20px">Bạn đã phá sản sau '+game.day+' ngày!<br><br><button class="btn btn-p" onclick="closeModal()">Đây chỉ là troll!</button></div>');
+    showToast('Hiện bảng phá sản giả để troll!','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSpawnPotatoPC(){
+  try{
+    const pc={id:Date.now()+Math.random(),cpu:'cpu_celeron_533',gpu:'gpu_tnt2',mb:'mb_810',ram:'ram_sd128',psu:'psu_200',case:'case_basic',storage:'st_hdd20',perf:1,cost:0,hasDefect:false,createdDay:game.day,sellPrice:1000000,potatoPC:true};
+    game.pcs.push(pc);
+    showToast('Spawn PC Củ Khoai Tây! Perf 1, bán $1.000.000','ok');
+    pushLog('[ADMIN] Spawn PC Củ Khoai Tây','ok');
+    renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminRenameAIFunny(){
+  try{
+    const funnyNames=['Công ty Mình Rất Tồi','AI Phá Nhà','Chíp Hỏng Ltd','RAM Lê','Mainboard Ỉa','VGA Cười','PSU Nổ','Case Mộc'];
+    game.aiBrands.forEach((b,i)=>{if(!b.bankrupt)b.name=funnyNames[i%funnyNames.length];});
+    showToast('Đổi tên toàn bộ AI thành hài hước!','ok');
+    renderAdmin();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminMegaLogo(){
+  try{
+    adminFlags.megaLogo=!adminFlags.megaLogo;
+    const logo=document.getElementById('admin-logo');
+    if(adminFlags.megaLogo)logo.classList.add('admin-mega-logo');
+    else logo.classList.remove('admin-mega-logo');
+    showToast(adminFlags.megaLogo?'Logo phóng to gấp 10 lần!':'Logo bình thường','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+
+// === NHÓM 10: TẠO HÓA THẦN (GOD MODE ULTIMATE) ===
+function adminUnlockEverything(){
+  try{
+    adminGodMode=true;
+    Object.keys(adminFlags).forEach(k=>{adminFlags[k]=true;});
+    game.eraIdx=ERAS.length-1;
+    showToast('Mở khóa vĩnh viễn mọi thứ (kể cả ẩn chưa ra mắt)!','ok');
+    pushLog('[ADMIN] Mở khóa vĩnh viễn toàn bộ','ok');
+    renderAdmin();renderStats();
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminSkipChecks(){
+  try{
+    adminFlags.skipChecks=!adminFlags.skipChecks;
+    showToast(adminFlags.skipChecks?'Bỏ qua mọi điều kiện kiểm tra!':'Tắt bỏ qua kiểm tra','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminShowEndings(){
+  try{
+    let html='<div style="font-size:14px;line-height:2">';
+    html+='<p><b>1. Ending Phá Sản:</b> Tiền về âm, đế chế sụp đổ.</p>';
+    html+='<p><b>2. Ending Ông Trùm:</b> Thị phần 100%, đánh bại toàn bộ AI.</p>';
+    html+='<p><b>3. Ending Huyền Thoại:</b> Uy tín 100, cổ phiếu max, 1000+ PC.</p>';
+    html+='<p><b>4. Ending Kỷ Nguyên Mới:</b> Đạt đến Kỷ nguyên 2024+.</p>';
+    html+='<p><b>5. Ending Thượng Đế:</b> Mở khóa GOD MODE, mọi tính năng.</p>';
+    html+='<p><b>6. Ending Ẩn - Đế Chế Vô Hạn:</b> Vượt qua tất cả kỷ nguyên, vô cực.</p>';
+    html+='</div>';
+    showModal('Toàn bộ Ending kết thúc Game',html);
+    showToast('Hiển thị toàn bộ Ending!','ok');
+  }catch(e){showToast('Lỗi: '+e.message,'err');}
+}
+function adminRunJS(){
+  try{
+    const code=document.getElementById('adm-js-console').value;
+    if(!code.trim()){showToast('Nhập lệnh JavaScript vào ô','warn');return;}
+    const result=eval(code);
+    showToast('Lệnh đã chạy! Kết quả: '+(result!==undefined?String(result).slice(0,100):'undefined'),'ok');
+    pushLog('[ADMIN] Chạy lệnh JS trực tiếp','ok');
+    renderStats();renderLog();
+  }catch(e){showToast('Lỗi JS: '+e.message,'err');}
+}
+
+// === RENDER ADMIN PANEL ===
+function renderAdmin(){
+  try{
+    const el=document.getElementById('tab-admin');
+    if(!el)return;
+    const aiAlive=game.aiBrands.filter(b=>!b.bankrupt);
+    const aiSelect=aiAlive.length?'<select id="adm-ai-target">'+aiAlive.map(b=>'<option value="'+b.name+'">'+b.name+' ('+Math.round(b.share)+'%)</option>').join('')+'</select>':'<span style="color:var(--txt3)">Không có hãng AI</span>';
+    const allEras=ERAS.map((e,i)=>'<option value="'+i+'" '+(i===game.eraIdx?'selected':'')+'>'+e.name+'</option>').join('');
+    const allParts=CATALOG.filter(p=>p.e<=game.eraIdx).map(p=>'<option value="'+p.id+'">'+p.n+'</option>').join('');
+
+    let h='<div class="admin-banner"><h2>BẢNG ĐIỀU KHIỂN ADMIN BÍ MẬT</h2><div class="sub">GOD MODE CONSOLE - Hơn 100 tính năng bá đạo | Toàn bộ bằng Tiếng Việt</div></div>';
+
+    // Master toggle
+    h+='<div style="text-align:center;margin-bottom:14px"><button class="admin-master-toggle '+(adminGodMode?'':'off')+'" onclick="adminMasterToggle()">'+(adminGodMode?'TẮT TOÀN BỘ QUYỀN NĂNG THƯỢNG ĐẾ':'BẬT TOÀN BỘ QUYỀN NĂNG THƯỢNG ĐẾ')+'</button></div>';
+
+    // NHÓM 1
+    h+=adminAccordion(1,'THAO TÚNG TÀI CHÍNH & KINH TẾ',[
+      '<div class="admin-input-row"><label>Đặt số tiền chính xác</label><input type="number" id="adm-money-input" value="'+Math.round(game.money)+'"><button class="btn btn-sm btn-p" onclick="adminSetMoney()">Đặt</button></div>',
+      '<div class="admin-feature"><label>Tiền vô hạn (không mất khi mua)</label><div class="admin-toggle '+(adminFlags.infiniteMoney?'on':'')+'" onclick="adminToggleFlag(\'infiniteMoney\')"></div></div>',
+      '<div class="admin-slider-row"><label>Uy tín (0-100)</label><input type="range" min="0" max="100" value="'+game.reputation+'" oninput="adminSetRep(this.value)"><span class="val">'+game.reputation+'</span></div>',
+      '<div class="admin-slider-row"><label>Thị phần (0-100%)</label><input type="range" min="0" max="100" value="'+Math.round(game.marketShare)+'" oninput="adminSetShare(this.value)"><span class="val">'+Math.round(game.marketShare)+'%</span></div>',
+      '<div class="admin-feature"><label>Xóa sạch nợ ngân hàng & tín dụng đen</label><button class="btn btn-sm btn-ok" onclick="adminClearDebt()">Xóa nợ</button></div>',
+      '<div class="admin-input-row"><label>Đặt giá cổ phiếu công ty ($0-$999)</label><input type="number" id="adm-stock-price" value="50" min="0" max="999"><button class="btn btn-sm btn-p" onclick="adminSetStockPrice()">Đặt</button></div>',
+      '<div class="admin-feature"><label>Miễn 100% thuế & tiền thuê mặt bằng</label><div class="admin-toggle '+(adminFlags.noTax?'on':'')+'" onclick="adminToggleFlag(\'noTax\')"></div></div>',
+      '<div class="admin-quick-btns"><label style="width:100%;font-size:13px;color:var(--txt2)">Cộng nhanh tiền:</label><button class="btn btn-sm btn-ok" onclick="adminAddMoney(100000)">+100K$</button><button class="btn btn-sm btn-ok" onclick="adminAddMoney(1000000)">+1M$</button><button class="btn btn-sm btn-ok" onclick="adminAddMoney(100000000)">+100M$</button><button class="btn btn-sm btn-ok" onclick="adminAddMoney(1000000000)">+1 Tỷ$</button></div>',
+      '<div class="admin-feature"><label>Mọi chi phí vận hành giảm về 0$</label><div class="admin-toggle '+(adminFlags.noOpCost?'on':'')+'" onclick="adminToggleFlag(\'noOpCost\')"></div></div>',
+      '<div class="admin-feature"><label>Ép giá nhập khẩu linh kiện giảm 90%</label><button class="btn btn-sm btn-p" onclick="adminSetImportDiscount()">Kích hoạt</button></div>',
+      '<div class="admin-feature"><label>Đóng băng lãi suất ngân hàng</label><div class="admin-toggle '+(adminFlags.freezeInterest?'on':'')+'" onclick="adminToggleFlag(\'freezeInterest\')"></div></div>',
+      '<div class="admin-feature"><label>Bỏ qua phạt rủi ro pháp lý & kiểm tra thuế</label><div class="admin-toggle '+(adminFlags.ignoreLegal?'on':'')+'" onclick="adminToggleFlag(\'ignoreLegal\')"></div></div>',
+    ].join(''));
+
+    // NHÓM 2
+    h+=adminAccordion(2,'QUẢN LÝ KHO & LINH KIỆN TƯƠNG LAI',[
+      '<div class="admin-input-row"><label>Spawn linh kiện tùy chọn</label><select id="adm-spawn-part" style="width:200px">'+allParts+'</select></div>',
+      '<div class="admin-input-row"><label>Số lượng</label><input type="number" id="adm-spawn-qty" value="1" min="1" max="9999"><button class="btn btn-sm btn-p" onclick="adminSpawnPart()">Spawn</button></div>',
+      '<div class="admin-input-row"><label>Phẩm chất</label><select id="adm-spawn-cond"><option value="new">Mới 100%</option><option value="gradeA">Loại A</option><option value="gradeB">Loại B</option><option value="fair">Loại C (Hơi tã)</option><option value="gradeD">Loại D</option><option value="broken">Hỏng</option></select></div>',
+      '<div class="admin-feature"><label>Giao hàng siêu tốc 0 giây</label><button class="btn btn-sm btn-ok" onclick="adminInstantShip()">Giao ngay</button></div>',
+      '<div class="admin-slider-row"><label>Thời gian ship hàng (0-30 ngày)</label><input type="range" min="0" max="30" value="0" oninput="adminSetShipDays(this.value)" id="adm-ship-days"><span class="val" id="adm-ship-val">0</span></div>',
+      '<div class="admin-quick-btns"><label style="width:100%;font-size:13px;color:var(--txt2)">Nhân bản số lượng trong kho:</label><button class="btn btn-sm btn-p" onclick="adminMultiplyStock(2)">x2</button><button class="btn btn-sm btn-p" onclick="adminMultiplyStock(5)">x5</button><button class="btn btn-sm btn-p" onclick="adminMultiplyStock(10)">x10</button><button class="btn btn-sm btn-p" onclick="adminMultiplyStock(100)">x100</button></div>',
+      '<div class="admin-feature"><label>Nâng cấp toàn kho lên Mới 100% (S+)</label><button class="btn btn-sm btn-ok" onclick="adminUpgradeAllStock()">Nâng cấp</button></div>',
+      '<div class="admin-feature"><label>Xóa sạch linh kiện rác/thừa</label><button class="btn btn-sm btn-err" onclick="adminClearJunk()">Xóa rác</button></div>',
+      '<div class="admin-feature"><label>Vô hạn sức chứa kho bãi</label><div class="admin-toggle '+(adminFlags.infiniteStorage?'on':'')+'" onclick="adminToggleFlag(\'infiniteStorage\')"></div></div>',
+      '<div class="admin-feature"><label>Làm mới Shop & Chợ đồ cũ</label><button class="btn btn-sm btn-p" onclick="adminRefreshShop()">Làm mới</button></div>',
+      '<div class="admin-feature"><label>Spawn linh kiện thử nghiệm bí mật</label><button class="btn btn-sm btn-p" onclick="adminSpawnSecretPart()">Spawn bí mật</button></div>',
+      '<div class="admin-feature"><label>Sửa chữa 100% linh kiện hỏng</label><button class="btn btn-sm btn-ok" onclick="adminRepairAllBroken()">Sửa hết</button></div>',
+      '<div class="admin-feature"><label>Khóa số lượng linh kiện (dùng không giảm)</label><div class="admin-toggle '+(adminFlags.lockParts?'on':'')+'" onclick="adminToggleFlag(\'lockParts\')"></div></div>',
+    ].join(''));
+
+    // NHÓM 3
+    h+=adminAccordion(3,'SIÊU TỰ ĐỘNG HÓA & RÁP PC',[
+      '<div class="admin-input-row"><label>Tự động ráp PC hàng loạt</label><input type="number" id="adm-build-qty" value="1" min="1" max="100"><button class="btn btn-sm btn-p" onclick="adminAutoBuildPC()">Ráp</button></div>',
+      '<div class="admin-feature"><label>Ráp PC không bao giờ lỗi tương thích</label><div class="admin-toggle '+(adminFlags.noCompat?'on':'')+'" onclick="adminToggleFlag(\'noCompat\')"></div></div>',
+      '<div class="admin-feature"><label>Ép xung Max toàn bộ PC (không cháy nổ)</label><button class="btn btn-sm btn-p" onclick="adminOverclockAll()">Ép xung Max</button></div>',
+      '<div class="admin-feature"><label>Sửa chữa 100% PC hỏng</label><button class="btn btn-sm btn-ok" onclick="adminRepairAllPC()">Sửa PC</button></div>',
+      '<div class="admin-input-row"><label>Nhân bản PC đã ráp</label><input type="number" id="adm-clone-pc-qty" value="1" min="1" max="100"><button class="btn btn-sm btn-p" onclick="adminClonePC()">Nhân bản</button></div>',
+      '<div class="admin-feature"><label>Đo Benchmark ngay lập tức (0s)</label><button class="btn btn-sm btn-p" onclick="adminInstantBench()">Benchmark</button></div>',
+      '<div class="admin-feature"><label>Bỏ qua chuẩn khe cắm Mainboard/CPU/RAM</label><div class="admin-toggle '+(adminFlags.noCompat?'on':'')+'" onclick="adminToggleFlag(\'noCompat\')"></div></div>',
+      '<div class="admin-quick-btns"><label style="width:100%;font-size:13px;color:var(--txt2)">Hệ số nhân giá bán PC:</label><button class="btn btn-sm btn-p" onclick="adminSetSellMult(2)">x2</button><button class="btn btn-sm btn-p" onclick="adminSetSellMult(5)">x5</button><button class="btn btn-sm btn-p" onclick="adminSetSellMult(10)">x10</button></div>',
+      '<div class="admin-feature"><label>Nhân viên ráp PC tốc độ thần tốc x100</label><div class="admin-toggle '+(adminFlags.buildSpeedX100?'on':'')+'" onclick="adminToggleFlag(\'buildSpeedX100\')"></div></div>',
+      '<div class="admin-input-row"><label>Tự gõ điểm Benchmark</label><input type="number" id="adm-bench-score" value="999999"><button class="btn btn-sm btn-p" onclick="adminSetBenchScore()">Gõ điểm</button></div>',
+      '<div class="admin-feature"><label>Độ bền PC vô hạn (không bao giờ hỏng)</label><div class="admin-toggle '+(adminFlags.pcIndestructible?'on':'')+'" onclick="adminToggleFlag(\'pcIndestructible\')"></div></div>',
+      '<div class="admin-feature"><label>Tháo toàn bộ PC lấy linh kiện</label><button class="btn btn-sm btn-err" onclick="adminDisassembleAllPC()">Tháo hết</button></div>',
+    ].join(''));
+
+    // NHÓM 4
+    h+=adminAccordion(4,'KHÁCH HÀNG, HỢP ĐỒNG B2B & PHÒNG NET',[
+      '<div class="admin-feature"><label>Ép khách hàng mua PC bất kỳ giá</label><button class="btn btn-sm btn-p" onclick="adminForceCustomerBuy()">Ép mua</button></div>',
+      '<div class="admin-feature"><label>Hoàn thành tất cả B2B & thu Max thưởng</label><button class="btn btn-sm btn-ok" onclick="adminCompleteAllB2B()">Hoàn thành B2B</button></div>',
+      '<div class="admin-feature"><label>Hoàn thành toàn bộ nhiệm vụ lẻ</label><button class="btn btn-sm btn-ok" onclick="adminCompleteOrders()">Hoàn nhiệm vụ</button></div>',
+      '<div class="admin-slider-row"><label>Nhân doanh thu Phòng NET (x1-x100)</label><input type="range" min="1" max="100" value="'+(game.adminCafeMult||1)+'" oninput="adminSetCafeRevenueMult(this.value)" id="adm-cafe-mult"><span class="val" id="adm-cafe-mult-val">'+(game.adminCafeMult||1)+'</span></div>',
+      '<div class="admin-feature"><label>Nâng cấp Max Phòng NET miễn phí</label><button class="btn btn-sm btn-p" onclick="adminMaxUpgradeCafe()">Max nâng cấp</button></div>',
+      '<div class="admin-feature"><label>Spawn chuỗi khách VIP (trả x10)</label><button class="btn btn-sm btn-p" onclick="adminSpawnVIPCustomers()">Spawn VIP</button></div>',
+      '<div class="admin-feature"><label>Đặt đánh giá Phòng NET 5 Sao</label><button class="btn btn-sm btn-ok" onclick="adminSetCafe5Stars()">5 Sao</button></div>',
+      '<div class="admin-feature"><label>Dàn máy Phòng NET độ bền vô hạn</label><div class="admin-toggle '+(adminFlags.pcIndestructible?'on':'')+'" onclick="adminToggleFlag(\'pcIndestructible\')"></div></div>',
+      '<div class="admin-feature"><label>Vô hạn sức chứa khách Phòng NET</label><div class="admin-toggle '+(adminFlags.infiniteCafeCapacity?'on':'')+'" onclick="adminToggleFlag(\'infiniteCafeCapacity\')"></div></div>',
+      '<div class="admin-feature"><label>Làm mới & nhân bản hợp đồng B2B ngon</label><button class="btn btn-sm btn-p" onclick="adminRefreshB2B()">Làm mới B2B</button></div>',
+      '<div class="admin-feature"><label>Đặt hài lòng khách 100% toàn bản đồ</label><button class="btn btn-sm btn-ok" onclick="adminSetSatisfaction100()">100% hài lòng</button></div>',
+      '<div class="admin-feature"><label>Tự động nhận & trả B2B phù hợp</label><button class="btn btn-sm btn-p" onclick="adminAutoMatchB2B()">Auto khớp</button></div>',
+    ].join(''));
+
+    // NHÓM 5
+    h+=adminAccordion(5,'THAO TÚNG AI & BẢNG XẾP HẠNG GOOGLE ẢO',[
+      '<div class="admin-input-row"><label>Phá sản 1 hãng AI</label>'+aiSelect+'<button class="btn btn-sm btn-err" onclick="adminBankruptAI(document.getElementById(\'adm-ai-target\').value)">Phá sản</button></div>',
+      '<div class="admin-feature"><label>Phá sản TOÀN BỘ hãng AI (chiếm 100%)</label><button class="btn btn-sm btn-err" onclick="adminBankruptAllAI()">Phá sản hết</button></div>',
+      '<div class="admin-input-row"><label>Tạo hãng AI mới (Tên)</label><input type="text" id="adm-ai-name" value="NEW_AI" style="width:120px"></div>',
+      '<div class="admin-input-row"><label>Thị phần hãng mới (%)</label><input type="number" id="adm-ai-share" value="10" min="0" max="100"><button class="btn btn-sm btn-p" onclick="adminCreateAI()">Tạo</button></div>',
+      '<div class="admin-feature"><label>Đóng băng R&D toàn bộ hãng AI</label><div class="admin-toggle '+(adminFlags.freezeAIRnD?'on':'')+'" onclick="adminFreezeAIRnD()"></div></div>',
+      '<div class="admin-feature"><label>Sao chép linh kiện độc quyền AI vào Kho</label><button class="btn btn-sm btn-p" onclick="adminCopyAIParts()">Sao chép</button></div>',
+      '<div class="admin-feature"><label>Hồi sinh hãng AI đã phá sản</label><button class="btn btn-sm btn-ok" onclick="adminReviveAI(document.getElementById(\'adm-ai-target\').value)">Hồi sinh</button></div>',
+      '<div class="admin-feature"><label>Xóa sạch linh kiện AI trên chợ</label><button class="btn btn-sm btn-err" onclick="adminClearAIParts()">Xóa hết</button></div>',
+      '<div class="admin-feature"><label>Mưu hại AI (-50% doanh thu, -30% uy tín)</label><button class="btn btn-sm btn-warn" onclick="adminSabotageAI(document.getElementById(\'adm-ai-target\').value)">Mưu hại</button></div>',
+      '<div class="admin-feature"><label>Ép 2 hãng AI sáp nhập</label><button class="btn btn-sm btn-p" onclick="adminMergeAI()">Sáp nhập</button></div>',
+      '<div class="admin-input-row"><label>Tính cách AI</label><select id="adm-ai-personality"><option value="dumb">Ngu ngốc</option><option value="aggressive">Hung hăng</option></select><button class="btn btn-sm btn-p" onclick="adminSetAIPersonality()">Đặt</button></div>',
+      '<div class="admin-feature"><label>Đăng ký độc quyền cấm AI sản xuất</label><div class="admin-toggle '+(adminFlags.patentLock?'on':'')+'" onclick="adminRegisterPatent()"></div></div>',
+    ].join(''));
+
+    // NHÓM 6
+    h+=adminAccordion(6,'ĐIỀU KHIỂN THỜI GIAN & KỶ NGUYÊN',[
+      '<div class="admin-input-row"><label>Nhảy nhanh số ngày</label><input type="number" id="adm-ff-days" value="1" min="1" max="999"><button class="btn btn-sm btn-p" onclick="adminFastForward()">Fast-Forward</button></div>',
+      '<div class="admin-input-row"><label>Dịch chuyển Kỷ Nguyên</label><select id="adm-era-jump">'+allEras+'</select><button class="btn btn-sm btn-p" onclick="adminJumpEra(parseInt(document.getElementById(\'adm-era-jump\').value))">Dịch</button></div>',
+      '<div class="admin-feature"><label>Đóng băng thời gian (không nhảy ngày)</label><div class="admin-toggle '+(adminFlags.freezeTime?'on':'')+'" onclick="adminToggleFlag(\'freezeTime\')"></div></div>',
+      '<div class="admin-quick-btns"><label style="width:100%;font-size:13px;color:var(--txt2)">Kích hoạt sự kiện:</label><button class="btn btn-sm btn-warn" onclick="adminTriggerEvent(\'Bão giá RAM\')">Bão giá RAM</button><button class="btn btn-sm btn-warn" onclick="adminTriggerEvent(\'Khủng hoảng Chip\')">Khủng hoảng Chip</button><button class="btn btn-sm btn-warn" onclick="adminTriggerEvent(\'Hạn hán Silicon\')">Hạn hán Silicon</button></div>',
+      '<div class="admin-feature"><label>Hủy sự kiện khủng hoảng đang diễn ra</label><button class="btn btn-sm btn-err" onclick="adminCancelEvents()">Hủy sự kiện</button></div>',
+      '<div class="admin-slider-row"><label>Tốc độ game (x1-x100)</label><input type="range" min="1" max="100" value="'+(game.adminGameSpeed||1)+'" oninput="adminSetGameSpeed(this.value)"><span class="val" id="adm-speed-val">'+(game.adminGameSpeed||1)+'</span></div>',
+      '<div class="admin-quick-btns"><label style="width:100%;font-size:13px;color:var(--txt2)">Tua ngược thời gian:</label><button class="btn btn-sm btn-ghost" onclick="adminRewindDays(1)">Lùi 1 ngày</button><button class="btn btn-sm btn-ghost" onclick="adminRewindDays(7)">Lùi 7 ngày</button></div>',
+      '<div class="admin-feature"><label>Kinh tế luôn Bùng Nổ</label><div class="admin-toggle '+(adminFlags.boomEconomy?'on':'')+'" onclick="adminBoomEconomy()"></div></div>',
+      '<div class="admin-feature"><label>Lặp lại ngày hiện tại vô tận</label><div class="admin-toggle '+(adminFlags.loopDay?'on':'')+'" onclick="adminLoopDay()"></div></div>',
+      '<div class="admin-feature"><label>Kích hoạt 5 sự kiện tích cực cùng lúc</label><button class="btn btn-sm btn-ok" onclick="adminTrigger5Positive()">5 sự kiện</button></div>',
+      '<div class="admin-input-row"><label>Tự gõ số Năm hiển thị</label><input type="number" id="adm-set-year" value="2000"><button class="btn btn-sm btn-p" onclick="adminSetYear()">Đặt năm</button></div>',
+      '<div class="admin-feature"><label>Bỏ qua chu kỳ mùa/thị trường</label><button class="btn btn-sm btn-p" onclick="adminSkipMarketCycle()">Bỏ qua</button></div>',
+    ].join(''));
+
+    // NHÓM 7
+    h+=adminAccordion(7,'NHÂN SỰ, R&D & TRANG THIẾT BỊ',[
+      '<div class="admin-slider-row"><label>Kỹ năng toàn bộ nhân viên (0-100)</label><input type="range" min="0" max="100" value="50" oninput="adminSetStaffSkill(this.value)"><span class="val" id="adm-skill-val">50</span></div>',
+      '<div class="admin-slider-row"><label>Độ thỏa mãn nhân viên (0-100%)</label><input type="range" min="0" max="100" value="80" oninput="adminSetStaffSatisfaction(this.value)"><span class="val" id="adm-sat-val">80</span></div>',
+      '<div class="admin-feature"><label>Lương nhân viên giảm về 0$/tháng</label><button class="btn btn-sm btn-ok" onclick="adminZeroSalary()">0$ lương</button></div>',
+      '<div class="admin-feature"><label>R&D hoàn thành ngay (0s)</label><button class="btn btn-sm btn-ok" onclick="adminInstantRD()">R&D xong</button></div>',
+      '<div class="admin-feature"><label>Mở khóa 100% thiết bị & nâng cấp xưởng</label><button class="btn btn-sm btn-p" onclick="adminUnlockAllEquipment()">Mở khóa</button></div>',
+      '<div class="admin-feature"><label>Spawn nhân viên Cấp Tối Đa chỉ số siêu bá</label><button class="btn btn-sm btn-p" onclick="adminSpawnMaxStaff()">Spawn Max</button></div>',
+      '<div class="admin-feature"><label>Tuyển nhân viên tức thì (không phỏng vấn)</label><button class="btn btn-sm btn-p" onclick="adminHireInstant()">Tuyển ngay</button></div>',
+      '<div class="admin-feature"><label>R&D Siêu Cấp (linh kiện x10 chỉ số)</label><button class="btn btn-sm btn-p" onclick="adminRnDSuper()">R&D Siêu Cấp</button></div>',
+      '<div class="admin-feature"><label>Thể lực nhân viên vô hạn (24/7)</label><div class="admin-toggle '+(adminFlags.infiniteStamina?'on':'')+'" onclick="adminToggleFlag(\'infiniteStamina\')"></div></div>',
+      '<div class="admin-feature"><label>Tự động thăng cấp nhân viên mỗi ngày</label><div class="admin-toggle '+(adminFlags.autoLevelStaff?'on':'')+'" onclick="adminAutoLevelStaff()"></div></div>',
+      '<div class="admin-feature"><label>Mở rộng xưởng Max miễn phí</label><button class="btn btn-sm btn-p" onclick="adminMaxWorkshop()">Max xưởng</button></div>',
+      '<div class="admin-feature"><label>Sa thải toàn bộ nhân viên (không phí)</label><button class="btn btn-sm btn-err" onclick="adminFireAllStaff()">Sa thải hết</button></div>',
+    ].join(''));
+
+    // NHÓM 8
+    h+=adminAccordion(8,'HỆ THỐNG, DỮ LIỆU SAVE & GIAO DIỆN',[
+      '<div class="admin-feature"><label>Xuất file Save JSON (copy chuỗi)</label><button class="btn btn-sm btn-p" onclick="adminExportSave()">Xuất</button></div>',
+      '<textarea class="admin-js-console" id="adm-save-output" placeholder="Chuỗi Save JSON sẽ hiện ở đây..." readonly></textarea>',
+      '<div class="admin-feature"><label>Nhập file Save JSON (dán chuỗi đè Save)</label><button class="btn btn-sm btn-ok" onclick="adminImportSave()">Nhập</button></div>',
+      '<textarea class="admin-js-console" id="adm-save-input" placeholder="Dán chuỗi JSON vào đây..."></textarea>',
+      '<div class="admin-input-row"><label>Đổi giao diện Game & Admin</label><select id="adm-theme"><option value="default">Mặc định</option><option value="gold">Vàng Kim</option><option value="matrix">Matrix</option><option value="rgb">Đèn LED RGB</option></select><button class="btn btn-sm btn-p" onclick="adminSetTheme(document.getElementById(\'adm-theme\').value)">Áp dụng</button></div>',
+      '<div class="admin-feature"><label>Xóa sạch nhật ký hoạt động rác</label><button class="btn btn-sm btn-ghost" onclick="adminClearLog()">Xóa log</button></div>',
+      '<div class="admin-feature"><label>Uy tín Thượng Đế (Max 100/100)</label><button class="btn btn-sm btn-ok" onclick="adminGodRep()">Max uy tín</button></div>',
+      '<div class="admin-feature"><label>Tắt toàn bộ cảnh báo hệ thống</label><div class="admin-toggle '+(adminFlags.noWarnings?'on':'')+'" onclick="adminDisableWarnings()"></div></div>',
+      '<div class="admin-feature"><label>Reset Game (giữ Menu Admin)</label><button class="btn btn-sm btn-warn" onclick="adminResetGame()">Reset</button></div>',
+      '<div class="admin-feature"><label>Bảng thông số FPS & RAM</label><div class="admin-toggle '+(adminFlags.showFPS?'on':'')+'" onclick="adminToggleFPS()"></div></div>',
+    ].join(''));
+
+    // NHÓM 9
+    h+=adminAccordion(9,'TÍNH NĂNG TẤU HÀI & TROLL GAME',[
+      '<div class="admin-feature"><label>Nút Tự Hủy Đế Chế (tiền 0, đốt kho)</label><button class="btn btn-sm btn-err" onclick="adminSelfDestruct()">Tự hủy</button></div>',
+      '<div class="admin-feature"><label>Chế độ Thị Trường Hỗn Sạn (giá điên đảo)</label><div class="admin-toggle '+(adminFlags.chaosMarket?'on':'')+'" onclick="adminChaosMarket()"></div></div>',
+      '<div class="admin-feature"><label>Giả lập Siêu Lạm Phát (bánh mì $1M)</label><button class="btn btn-sm btn-warn" onclick="adminHyperInflation()">Lạm phát</button></div>',
+      '<div class="admin-feature"><label>Giao diện Nhiễu Sóng Cyber-glitch</label><div class="admin-toggle '+(adminFlags.glitchUI?'on':'')+'" onclick="adminGlitchUI()"></div></div>',
+      '<div class="admin-feature"><label>Hiện bảng "BẠN ĐÃ PHÁ SẢN!" giả troll</label><button class="btn btn-sm btn-warn" onclick="adminFakeBankrupt()">Troll phá sản</button></div>',
+      '<div class="admin-feature"><label>Spawn "PC Củ Khoai Tây" (perf 1, $1M)</label><button class="btn btn-sm btn-p" onclick="adminSpawnPotatoPC()">PC Khoai Tây</button></div>',
+      '<div class="admin-feature"><label>Đổi tên toàn bộ AI thành hài hước</label><button class="btn btn-sm btn-p" onclick="adminRenameAIFunny()">Đổi tên hài</button></div>',
+      '<div class="admin-feature"><label>Phóng to Logo gấp 10 lần chiếm màn hình</label><div class="admin-toggle '+(adminFlags.megaLogo?'on':'')+'" onclick="adminMegaLogo()"></div></div>',
+    ].join(''));
+
+    // NHÓM 10
+    h+=adminAccordion(10,'TẠO HÓA THẦN (GOD MODE ULTIMATE)',[
+      '<div class="admin-feature"><label>Mở khóa vĩnh viễn mọi thứ (kể cả ẩn)</label><button class="btn btn-sm btn-p" onclick="adminUnlockEverything()">Mở khóa hết</button></div>',
+      '<div class="admin-feature"><label>Bỏ qua mọi điều kiện kiểm tra</label><div class="admin-toggle '+(adminFlags.skipChecks?'on':'')+'" onclick="adminSkipChecks()"></div></div>',
+      '<div class="admin-feature"><label>Xem toàn bộ Ending kết thúc Game</label><button class="btn btn-sm btn-p" onclick="adminShowEndings()">Xem Ending</button></div>',
+      '<div class="admin-feature"><label>Bảng gõ lệnh JavaScript can thiệp gameData</label></div>',
+      '<textarea class="admin-js-console" id="adm-js-console" placeholder="VD: game.money = 999999999; game.reputation = 100;" style="height:100px"></textarea>',
+      '<div style="margin-top:6px"><button class="btn btn-sm btn-p" onclick="adminRunJS()">Chạy lệnh JavaScript</button></div>',
+      '<div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--border)"><button class="admin-master-toggle '+(adminGodMode?'':'off')+'" onclick="adminMasterToggle()">'+(adminGodMode?'TẮT TOÀN BỘ QUYỀN NĂNG':'BẬT TOÀN BỘ QUYỀN NĂNG')+'</button></div>',
+    ].join(''));
+
+    el.innerHTML=h;
+  }catch(e){
+    console.error('renderAdmin error:',e);
+    const el=document.getElementById('tab-admin');
+    if(el)el.innerHTML='<div class="admin-warning-box">Lỗi render Admin: '+e.message+'</div>';
+  }
+}
+
+function adminAccordion(id,title,bodyHtml){
+  try{
+    return '<div class="admin-accordion"><div class="admin-acc-header" id="admin-acc-h-'+id+'" onclick="adminToggleAccordion('+id+')">'+title+' <span class="arrow">▶</span></div><div class="admin-acc-body" id="admin-acc-b-'+id+'">'+bodyHtml+'</div></div>';
+  }catch(e){return '';}
+}
+
+
 function init(){
   const loaded=hasSaveData()?loadGame():false;
   if(!loaded) initGame();
@@ -4630,6 +5709,7 @@ function init(){
   startAutoSave();
   updateSaveInfo();
   if(loaded)switchTab('cafe');
+  initAdminSecrets();
 }
 init();
 </script>
