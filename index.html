@@ -342,7 +342,8 @@ td{padding:8px;border-bottom:1px solid var(--border)}
   <nav class="tabs" id="tab-nav">
     <button data-tab="cafe" class="active">Phòng NET</button>
     <button data-tab="orders">Nhiệm vụ KH</button>
-    <button data-tab="market">Nhập hàng & Chợ đồ cũ</button>
+    <button data-tab="market">Shop & Chợ đồ cũ</button>
+    <button data-tab="parts">Kho linh kiện</button>
     <button data-tab="repair">Sửa chữa</button>
     <button data-tab="sales">Định giá & Bán lẻ</button>
     <button data-tab="build">Ráp PC</button>
@@ -362,6 +363,7 @@ td{padding:8px;border-bottom:1px solid var(--border)}
     <div class="tab-content active" id="tab-cafe"></div>
     <div class="tab-content" id="tab-orders"></div>
     <div class="tab-content" id="tab-market"></div>
+    <div class="tab-content" id="tab-parts"></div>
     <div class="tab-content" id="tab-repair"></div>
     <div class="tab-content" id="tab-sales"></div>
     <div class="tab-content" id="tab-build"></div>
@@ -1609,6 +1611,7 @@ function initGame(){
     gameOver:false,
     stations: Array.from({length:6},(_,i)=>({id:i+1,pc:null})),
     log:[], pendingDeliveries:[],
+    pendingShipments:[],
     benchSelectedGame:'cs2', benchGfxSetting:'medium',
     reputation:0, marketShare:5, totalRevenue:0,
     competitors:initCompetitors(),
@@ -1909,7 +1912,7 @@ function switchTab(tab){
 }
 
 function renderTab(tab){
-  const map={cafe:renderCafe,orders:renderOrders,market:renderMarket,repair:renderRepair,sales:renderSales,build:renderBuild,warehouse:renderWarehouse,bench:renderBench,web:renderWeb,partners:renderPartners,rnd:renderRnd,endgame:renderEndgame,devices:renderDevices,staff:renderStaff,news:renderNews,events:renderEvents,contracts:renderContracts};
+  const map={cafe:renderCafe,orders:renderOrders,market:renderMarket,parts:renderPartsInventory,repair:renderRepair,sales:renderSales,build:renderBuild,warehouse:renderWarehouse,bench:renderBench,web:renderWeb,partners:renderPartners,rnd:renderRnd,endgame:renderEndgame,devices:renderDevices,staff:renderStaff,news:renderNews,events:renderEvents,contracts:renderContracts};
   if(map[tab]) map[tab]();
   renderStats(); renderLog();
 }
@@ -2153,6 +2156,100 @@ function rejectOrder(idx){
   renderOrders();
 }
 
+function processShipments(){
+  for(let i=game.pendingShipments.length-1;i>=0;i--){
+    const s=game.pendingShipments[i];
+    s.daysLeft--;
+    if(s.daysLeft<=0){
+      game.stock.push({uid:s.uid,id:s.id,cost:s.cost,used:s.used,condition:s.condition,conditionLabel:s.conditionLabel,perfPenalty:s.perfPenalty});
+      const it=getItemById(s.id);
+      pushLog('Hàng đã giao: '+(it?it.n:s.id)+(s.used?' ['+s.conditionLabel+']':''),'ok');
+      showToast('Hàng đã về kho: '+(it?it.n:''),'ok');
+      game.pendingShipments.splice(i,1);
+    }
+  }
+}
+
+function getStockQuantities(){
+  const q={};
+  game.stock.forEach(s=>{
+    const key=s.id;
+    if(!q[key])q[key]={id:s.id,count:0,items:[]};
+    q[key].count++;
+    q[key].items.push(s);
+  });
+  return q;
+}
+
+function renderPartsInventory(){
+  const el=document.getElementById('tab-parts');
+  if(!el)return;
+  if(!game.stock.length){
+    el.innerHTML='<div class="card empty-state">Kho linh kiện trống. Hãy mua hàng từ Shop và chờ vận chuyển!</div>';
+    return;
+  }
+  const qty=getStockQuantities();
+  const byCat={};
+  Object.values(qty).forEach(q=>{
+    const it=getItemById(q.id);if(!it)return;
+    if(!byCat[it.cat])byCat[it.cat]=[];
+    byCat[it.cat].push(q);
+  });
+  let html='<div class="card"><h3>Kho Linh kiện</h3>';
+  html+='<div class="sub">Linh kiện đã mua và nhận hàng. Ráp PC chỉ dùng linh kiện từ đây.</div>';
+  html+='<div class="news-stats"><div class="news-stat"><span class="v" style="color:var(--ok)">'+game.stock.length+'</span><span class="l">Tổng linh kiện</span></div>';
+  html+='<div class="news-stat"><span class="v" style="color:var(--ac)">'+Object.keys(qty).length+'</span><span class="l">Loại khác nhau</span></div>';
+  if(game.pendingShipments.length){
+    html+='<div class="news-stat"><span class="v" style="color:var(--warn)">'+game.pendingShipments.length+'</span><span class="l">Đang giao</span></div>';
+  }
+  html+='</div>';
+  const catOrder=['cpu','gpu','mb','ram','psu','case','storage','laptop','mobile','tablet','accessory'];
+  catOrder.forEach(cat=>{
+    if(!byCat[cat])return;
+    html+='<h4 style="margin:12px 0 6px;color:var(--p)">'+CAT_LABELS[cat]+' ('+byCat[cat].reduce((s,q)=>s+q.count,0)+' món)</h4>';
+    html+='<div class="item-list">';
+    byCat[cat].forEach(q=>{
+      const it=getItemById(q.id);if(!it)return;
+      const conds=q.items.map(s=>s.used?(s.condition==='good'?'<span class="cond-badge cond-good">Tốt</span>':s.condition==='fair'?'<span class="cond-badge cond-fair">Tã</span>':'<span class="cond-badge cond-bad">Hỏng</span>'):'<span class="cond-badge cond-good">Mới</span>');
+      html+='<div class="item"><div class="info"><div class="name">'+it.n+' ×'+q.count+'</div>';
+      html+='<div class="meta">'+CAT_LABELS[it.cat]+' · T'+it.tier+' · Perf '+it.perf+(it.watt?' · '+it.watt+'W':'')+' · '+fmtMoney(q.items[0].cost)+'/cái</div></div>';
+      html+='<div style="text-align:right"><div style="font-size:11px">'+conds.join(' ')+'</div></div></div>';
+    });
+    html+='</div>';
+  });
+  html+='</div>';
+  if(game.pendingShipments.length){
+    html+='<div class="card" style="margin-top:10px"><h3 style="color:var(--warn)">Đang vận chuyển ('+game.pendingShipments.length+')</h3>';
+    html+='<div class="sub">Hàng sẽ về kho sau số ngày hiển thị.</div><div class="item-list">';
+    game.pendingShipments.forEach(s=>{
+      const it=getItemById(s.id);if(!it)return;
+      const pct=Math.round((1-s.daysLeft/s.totalDays)*100);
+      html+='<div class="item"><div class="info"><div class="name">'+it.n+(s.used?(s.condition==='bad'?' <span class="cond-badge cond-bad">Hỏng</span>':s.condition==='fair'?' <span class="cond-badge cond-fair">Tã</span>':''):'')+'</div>';
+      html+='<div class="meta">'+fmtMoney(s.cost)+' · '+(s.used?'Đồ cũ':'Mới')+'</div>';
+      html+='<div class="progress-bar" style="margin-top:4px"><div class="fill" style="width:'+pct+'%;background:var(--warn)"></div></div></div>';
+      html+='<span class="badge badge-warn">'+s.daysLeft+' ngày</span></div>';
+    });
+    html+='</div></div>';
+  }
+  el.innerHTML=html;
+}
+
+function renderPendingShipmentsInMarket(){
+  if(!game.pendingShipments.length)return'';
+  let html='<div class="card" style="margin-top:10px"><h3 style="color:var(--warn)">Đang vận chuyển ('+game.pendingShipments.length+')</h3>';
+  html+='<div class="sub">Hàng sẽ tự động về Kho linh kiện khi hết thời gian chờ.</div><div class="item-list">';
+  game.pendingShipments.forEach(s=>{
+    const it=getItemById(s.id);if(!it)return;
+    const pct=Math.round((1-s.daysLeft/s.totalDays)*100);
+    html+='<div class="item"><div class="info"><div class="name">'+it.n+(s.used?(s.condition==='bad'?' <span class="cond-badge cond-bad">Hỏng</span>':s.condition==='fair'?' <span class="cond-badge cond-fair">Tã</span>':''):'')+'</div>';
+    html+='<div class="meta">'+fmtMoney(s.cost)+' · '+(s.used?'Đồ cũ':'Mới')+'</div>';
+    html+='<div class="progress-bar" style="margin-top:4px"><div class="fill" style="width:'+pct+'%;background:var(--warn)"></div></div></div>';
+    html+='<span class="badge badge-warn">Còn '+s.daysLeft+' ngày</span></div>';
+  });
+  html+='</div></div>';
+  return html;
+}
+
 function renderMarket(){
   const el=document.getElementById('tab-market');
   const era=game.eraIdx;
@@ -2192,14 +2289,15 @@ function renderMarket(){
     </div></div>`;
   });
   html+='</div></div>';
+  html+=renderPendingShipmentsInMarket();
   if(game.stock.length){
-    html+=`<div class="card" style="margin-top:10px"><h3>Kho hàng (${game.stock.length})</h3><div class="item-list">`;
-    game.stock.slice(0,100).forEach((s,i)=>{
+    html+=`<div class="card" style="margin-top:10px"><h3>Kho linh kiện (đã nhận: ${game.stock.length})</h3><div class="sub">Xem đầy đủ tại tab Kho linh kiện.</div><div class="item-list">`;
+    game.stock.slice(0,20).forEach((s,i)=>{
       const it=getItemById(s.id); if(!it) return;
       html+=`<div class="item"><div class="info"><div class="name">${it.n}${s.used?(s.condition==='good'?' <span class="cond-badge cond-good">Tốt</span>':s.condition==='fair'?' <span class="cond-badge cond-fair">Hơi tã</span>':' <span class="cond-badge cond-bad">Hỏng</span>'):''}</div>
-        <div class="meta">${CAT_LABELS[it.cat]} · ${s.used?'Đồ cũ':'Mới'} · Giá vốn ${fmtMoney(s.cost)}</div></div>
-        <span class="price">${fmtMoney(s.cost)}</span></div>`;
+        <div class="meta">${CAT_LABELS[it.cat]} · ${s.used?'Đồ cũ':'Mới'} · ${fmtMoney(s.cost)}</div></div></div>`;
     });
+    if(game.stock.length>20)html+='<div style="text-align:center;color:var(--txt3);padding:8px">+ '+(game.stock.length-20)+' món khác... Xem tab Kho linh kiện</div>';
     html+='</div></div>';
   }
   el.innerHTML=html;
@@ -2227,14 +2325,16 @@ function buyItem(id,price,mode){
     else if(roll<0.85){condition='fair';conditionLabel='Hơi tã - giảm hiệu năng';perfPenalty=0.2;}
     else{condition='bad';conditionLabel='Lỗi/Hỏng nặng';perfPenalty=0.5;}
   }
-  game.stock.push({uid:Date.now()+Math.random(),id,cost:finalPrice,used:mode==='used',condition,conditionLabel,perfPenalty});
-  pushLog('Mua '+it.n+' với '+fmtMoney(finalPrice)+(mode==='used'?' ['+conditionLabel+']':''),'info');
+  const shipDays=mode==='used'?1:2;
+  const shipId=Date.now()+Math.random();
+  game.pendingShipments.push({uid:shipId,id,cost:finalPrice,used:mode==='used',condition,conditionLabel,perfPenalty,daysLeft:shipDays,totalDays:shipDays});
+  pushLog('Đặt mua '+it.n+' với '+fmtMoney(finalPrice)+' - giao trong '+shipDays+' ngày'+(mode==='used'?' ['+conditionLabel+']':''),'info');
   if(mode==='used'&&condition==='bad'){
-    showToast('Mua phải hàng hỏng! '+it.n,'err');
+    showToast('Mua phải hàng hỏng! '+it.n+' (đang giao)','err');
   }else if(mode==='used'&&condition==='fair'){
-    showToast('Mua '+it.n+' [Hơi tã]','warn');
+    showToast('Đặt mua '+it.n+' [Hơi tã] - giao '+shipDays+' ngày','warn');
   }else{
-    showToast('Đã mua '+it.n,'ok');
+    showToast('Đã đặt mua '+it.n+' - giao trong '+shipDays+' ngày','ok');
   }
   game.totalRevenue+=finalPrice;
   renderMarket(); renderStats();
@@ -2293,7 +2393,7 @@ function skipRepair(rid){
 
 function renderSales(){
   const el=document.getElementById('tab-sales');
-  if(!game.stock.length){el.innerHTML='<div class="card empty-state">Kho hàng trống. Hãy nhập hàng trước.</div>';return;}
+  if(!game.stock.length){el.innerHTML='<div class="card empty-state">Kho linh kiện trống. Hãy mua hàng từ Shop và chờ vận chuyển!</div>';return;}
   let html=`<div class="card"><h3>Định giá & Bán lẻ</h3>
     <div class="sub">Đặt giá bán cho từng món. Giá càng rẻ, xác suất bán càng cao. Tối đa 200% giá vốn.</div>
     <table><thead><tr><th>Sản phẩm</th><th>Giá vốn</th><th>Giá bán</th><th>Xác suất</th><th></th></tr></thead><tbody>`;
@@ -2416,7 +2516,7 @@ function renderBuild(){
     if(stab<30)html+='<div style="margin-top:6px;padding:6px;background:rgba(239,68,68,.1);border-radius:6px;font-size:12px;color:var(--err)">Nguy cơ sập xung cao! Giảm xung hoặc nâng tản nhiệt.</div>';
     html+='<button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="resetOverclock()">Đặt lại xung mặc định</button></div>';
   }
-  html+='<div class="row" style="margin-top:10px"><button class="btn btn-ghost" onclick="resetBuild()">Làm mới</button><button class="btn btn-p" onclick="saveBuild()" '+(valid?'':'disabled')+'>Lưu PC vào kho</button><button class="btn btn-ok" onclick="deliverPC()" '+(valid?'':'disabled')+'>Giao cho khách</button></div></div>';
+  html+='<div class="row" style="margin-top:10px"><button class="btn btn-ghost" onclick="resetBuild()">Làm mới</button><button class="btn btn-p" onclick="saveBuild()" '+(valid?'':'disabled')+'>Lưu PC vào kho</button><button class="btn btn-ok" onclick="saveBuild();showToast(\'PC đã lưu vào kho. Vào tab Nhiệm vụ KH để giao hàng!\',\'info\')" '+(valid?'':'disabled')+'>Lưu & Giao sau</button></div></div>';
   el.innerHTML=html;
 }
 function setBuildCooling(id){
@@ -2427,34 +2527,103 @@ function setBuildCooling(id){
 }
 
 function openSlotPicker(cat){
-  const era=game.eraIdx;
-  const items=getByCat(cat,era).sort((a,b)=>a.cost-b.cost);
-  let html='<div class="item-list" style="max-height:300px">';
-  items.forEach(p=>{
-    html+='<div class="item"><div class="info"><div class="name">'+p.n+'</div><div class="meta">'+fmtMoney(p.cost)+' · Perf '+p.perf+' · T'+p.tier+(p.watt?' · '+p.watt+'W':'')+'</div></div><button class="btn btn-sm btn-p" onclick="pickSlot(\''+cat+'\',\''+p.id+'\')">Chọn</button></div>';
+  const stockItems=game.stock.filter(s=>{
+    const it=getItemById(s.id);
+    return it&&it.cat===cat;
+  });
+  if(!stockItems.length){
+    let html='<div class="empty-state">Kho không còn '+CAT_LABELS[cat]+'. Hãy mua hàng từ Shop và chờ vận chuyển!</div>';
+    html+='<div style="margin-top:12px;text-align:center"><button class="btn btn-p btn-sm" onclick="closeModal();switchTab(\'market\')">Đi mua hàng</button></div>';
+    showModal('Chọn '+CAT_LABELS[cat],html);
+    return;
+  }
+  const grouped={};
+  stockItems.forEach(s=>{
+    if(!grouped[s.id])grouped[s.id]={id:s.id,count:0,items:[]};
+    grouped[s.id].count++;
+    grouped[s.id].items.push(s);
+  });
+  const items=Object.values(grouped).sort((a,b)=>{
+    const ia=getItemById(a.id),ib=getItemById(b.id);
+    return (ia?ia.perf:0)-(ib?ib.perf:0);
+  });
+  let html='<div class="sub">Lấy từ Kho linh kiện. Còn '+stockItems.length+' món '+CAT_LABELS[cat]+' trong kho.</div>';
+  html+='<div class="item-list" style="max-height:300px">';
+  items.forEach(g=>{
+    const p=getItemById(g.id);if(!p)return;
+    const conds=g.items.map(s=>s.used?(s.condition==='good'?'<span class="cond-badge cond-good">Tốt</span>':s.condition==='fair'?'<span class="cond-badge cond-fair">Tã</span>':'<span class="cond-badge cond-bad">Hỏng</span>'):'<span class="cond-badge cond-good">Mới</span>');
+    html+='<div class="item"><div class="info"><div class="name">'+p.n+' ×'+g.count+'</div>';
+    html+='<div class="meta">Perf '+p.perf+' · T'+p.tier+(p.watt?' · '+p.watt+'W':'')+' · '+conds.join(' ')+'</div></div>';
+    html+='<button class="btn btn-sm btn-p" onclick="pickSlot(\''+cat+'\',\''+g.id+'\')">Lắp</button></div>';
   });
   html+='</div>';
-  showModal('Chọn '+CAT_LABELS[cat],html);
+  showModal('Chọn '+CAT_LABELS[cat]+' từ kho',html);
 }
-function pickSlot(cat,id){game.build[cat]=id;closeModal();renderBuild();}
-function clearSlot(cat){game.build[cat]=null;renderBuild();}
-function resetBuild(){CAT_SLOTS.forEach(c=>game.build[c]=null);game.overclock={...OC_DEFAULTS};game.buildCooling='stock';renderBuild();}
+function pickSlot(cat,id){
+  const si=game.stock.findIndex(s=>s.id===id);
+  if(si<0){showToast('Linh kiện không có trong kho!','err');return;}
+  const stockItem=game.stock[si];
+  game.build[cat]=id;
+  game.build[cat+'_stockUid']=stockItem.uid;
+  game.build[cat+'_used']=stockItem.used;
+  game.build[cat+'_condition']=stockItem.condition;
+  game.build[cat+'_perfPenalty']=stockItem.perfPenalty;
+  game.stock.splice(si,1);
+  pushLog('Lấy '+getItemById(id).n+' từ kho để lắp vào khe '+CAT_LABELS[cat],'info');
+  closeModal();renderBuild();renderPartsInventory();
+}
+function clearSlot(cat){
+  const uid=game.build[cat+'_stockUid'];
+  if(uid){
+    const id=game.build[cat];
+    const it=getItemById(id);
+    if(it){
+      game.stock.push({uid:uid,id:id,cost:it.cost,used:game.build[cat+'_used']||false,condition:game.build[cat+'_condition']||'good',conditionLabel:game.build[cat+'_condition']==='fair'?'Hơi tã':game.build[cat+'_condition']==='bad'?'Lỗi/Hỏng nặng':'Hoạt động tốt',perfPenalty:game.build[cat+'_perfPenalty']||0});
+      pushLog('Trả '+it.n+' lại kho','info');
+    }
+  }
+  game.build[cat]=null;
+  delete game.build[cat+'_stockUid'];
+  delete game.build[cat+'_used'];
+  delete game.build[cat+'_condition'];
+  delete game.build[cat+'_perfPenalty'];
+  renderBuild();renderPartsInventory();
+}
+function resetBuild(){
+  CAT_SLOTS.forEach(c=>{
+    const uid=game.build[c+'_stockUid'];
+    if(uid){
+      const id=game.build[c];
+      const it=getItemById(id);
+      if(it){
+        game.stock.push({uid:uid,id:id,cost:it.cost,used:game.build[c+'_used']||false,condition:game.build[c+'_condition']||'good',conditionLabel:game.build[c+'_condition']==='fair'?'Hơi tã':game.build[c+'_condition']==='bad'?'Lỗi/Hỏng nặng':'Hoạt động tốt',perfPenalty:game.build[c+'_perfPenalty']||0});
+      }
+    }
+    game.build[c]=null;
+    delete game.build[c+'_stockUid'];
+    delete game.build[c+'_used'];
+    delete game.build[c+'_condition'];
+    delete game.build[c+'_perfPenalty'];
+  });
+  game.overclock={...OC_DEFAULTS};game.buildCooling='stock';
+  renderBuild();renderPartsInventory();
+}
 function saveBuild(){
   if(!isBuildComplete(game.build)){showToast('Chưa ráp đủ linh kiện','err');return;}
   if(!isBuildValid(game.build)){showToast('PSU không đủ công suất','err');return;}
-  const cost=getBuildCost(game.build);if(game.money<cost){showToast('Không đủ tiền','err');return;}game.money-=cost;
-  const pc={id:Date.now()+Math.random(),...JSON.parse(JSON.stringify(game.build)),perf:calcPCPerf(game.build),ocPerf:getOverclockedPerf(game.build),cooling:game.buildCooling,cost};
+  const pc={id:Date.now()+Math.random(),perf:calcPCPerf(game.build),ocPerf:getOverclockedPerf(game.build),cooling:game.buildCooling,cost:0};
   let defectiveParts=[],fairCount=0;
-  const consumedStock=[];
   CAT_SLOTS.forEach(cat=>{
     const id=game.build[cat];if(!id)return;
-    const si=game.stock.findIndex(s=>s.id===id);
-    if(si>=0){
-      const stockItem=game.stock[si];
-      consumedStock.push(si);
-      if(stockItem.used&&stockItem.condition==='bad'){defectiveParts.push(cat);pc[cat+'_defective']=true;}
-      else if(stockItem.used&&stockItem.condition==='fair'){fairCount++;pc[cat+'_degraded']=true;}
-      pc.cost=(pc.cost||0)-getBuildCost({[cat]:id})+stockItem.cost;
+    pc[cat]=id;
+    const used=game.build[cat+'_used'],condition=game.build[cat+'_condition'];
+    const stockUid=game.build[cat+'_stockUid'];
+    if(used&&condition==='bad'){defectiveParts.push(cat);pc[cat+'_defective']=true;}
+    else if(used&&condition==='fair'){fairCount++;pc[cat+'_degraded']=true;}
+    const it=getItemById(id);
+    if(it){
+      const disc=getPartnerDiscount(it.cat);
+      pc.cost+=disc>0?Math.round(it.cost*(1-disc)):it.cost;
     }
   });
   pc.cost=Math.round(pc.cost);
@@ -2474,9 +2643,9 @@ function saveBuild(){
     pushLog('Ráp PC #'+Math.round(pc.id)+': '+pc.perf+' perf, '+fmtMoney(pc.cost),'ok');
     showToast('Đã ráp PC '+pc.perf+' perf!','ok');
   }
-  consumedStock.sort((a,b)=>b-a).forEach(si=>game.stock.splice(si,1));
+  pc.cost=Math.round(pc.cost);
   game.pcs.push(pc);
-  CAT_SLOTS.forEach(c=>game.build[c]=null);renderBuild();renderStats();
+  CAT_SLOTS.forEach(c=>{game.build[c]=null;delete game.build[c+'_stockUid'];delete game.build[c+'_used'];delete game.build[c+'_condition'];delete game.build[c+'_perfPenalty'];});renderBuild();renderPartsInventory();renderStats();
   saveGame(true);
 }
 
@@ -3853,6 +4022,7 @@ function buildGameState(){
     stations:game.stations,
     log:game.log,
     pendingDeliveries:game.pendingDeliveries,
+    pendingShipments:game.pendingShipments,
     benchSelectedGame:game.benchSelectedGame,
     benchGfxSetting:game.benchGfxSetting,
     benchSelectedDevice:game.benchSelectedDevice,
@@ -3909,6 +4079,7 @@ function restoreGameState(state){
   if(!game.newsFeed)game.newsFeed=[];
   if(!game.activeEvents)game.activeEvents=[];
   if(!game.eventHistory)game.eventHistory=[];
+  if(!game.pendingShipments)game.pendingShipments=[];
   if(!game.contracts)game.contracts=[];
   if(!game.contractHistory)game.contractHistory=[];
   if(!game.craftedItems)game.craftedItems=[];
@@ -4179,7 +4350,7 @@ function processCafeDaily(){
 
 function advanceDay(){
   if(game.gameOver)return;
-  processCafeDaily();processAutoSales();processAutoRepair();processEmployeeSalaries();updateStocks();
+  processShipments();processCafeDaily();processAutoSales();processAutoRepair();processEmployeeSalaries();updateStocks();
   if(game.day%2===0)updateCompetitors();
   updateAiBrands();updateRndProjects();
   game.partners.forEach(p=>{if(p.cooldown>0)p.cooldown--;});
