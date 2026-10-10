@@ -127,6 +127,9 @@ td{padding:8px;border-bottom:1px solid var(--border)}
 .comp-status.falling{background:rgba(239,68,68,.2);color:var(--err)}
 .comp-status.stable{background:rgba(59,130,246,.2);color:var(--s)}
 .comp-status.stuck{background:rgba(249,115,22,.2);color:var(--warn)}
+.comp-status.leader{background:rgba(45,212,191,.2);color:var(--ac)}
+.brand-link{color:var(--p);cursor:pointer;text-decoration:none;transition:color .15s}
+.brand-link:hover{color:var(--ac);text-decoration:underline}
 .comp-bar{height:10px;background:var(--bg);border-radius:5px;overflow:hidden;margin:6px 0}
 .comp-bar .fill{height:100%;border-radius:5px;transition:width .5s}
 .comp-meta{font-size:11px;color:var(--txt3);display:flex;gap:12px;margin-top:4px}
@@ -396,7 +399,7 @@ const ERAS=[
 const DAYS_PER_ERA=15;
 const ELECTRICITY_RATE=0.12;
 const CAFE_RENT=80;
-const CAT_LABELS={cpu:'CPU',gpu:'VGA / GPU',mb:'Mainboard',ram:'RAM',psu:'Nguồn (PSU)',case:'Vỏ Case',storage:'Ổ lưu trữ',laptop:'Laptop',mobile:'Điện thoại',accessory:'Phụ kiện'};
+const CAT_LABELS={cpu:'CPU',gpu:'VGA / GPU',mb:'Mainboard',ram:'RAM',psu:'Nguồn (PSU)',case:'Vỏ Case',storage:'Ổ lưu trữ',laptop:'Laptop',mobile:'Điện thoại',tablet:'Tablet',accessory:'Phụ kiện'};
 const CAT_SLOTS=['cpu','gpu','mb','ram','psu','case','storage'];
 const DEVICE_CATS=['laptop','mobile','tablet'];
 const CAT_LABELS_EXT={...CAT_LABELS,tablet:'Tablet'};
@@ -1734,17 +1737,29 @@ function processAiBrandLifeCycle(){
     b.share=Math.max(0.5,Math.min(40,b.share));
     if(b.share<2 && b.daysActive>10){
       b.bankrupt=true;
-      pushLog('[Google ảo] '+b.name+' PHÁ SẢN! Bị loại khỏi bảng xếp hạng.','err');
-      showToast(b.name+' phá sản và biến mất!','warn');
+      const removed=garbageCollectBrand(b.name);
+      pushLog('[Google ảo] '+b.name+' PHÁ SẢN! Bị loại khỏi bảng xếp hạng. '+removed+' linh kiện ngừng bán.','err');
+      showToast(b.name+' phá sản! '+removed+' linh kiện ngừng bán.','warn');
     }
   }
+  // Mark leader
+  const aliveBrands=game.aiBrands.filter(b=>!b.bankrupt);
+  if(aliveBrands.length){const top=Math.max(...aliveBrands.map(b=>b.share));aliveBrands.forEach(b=>{if(b.share===top&&b.share>=15)b.status='leader';else if(b.status==='leader')b.status='stable';});}
   if(game.aiBrands.length>40){
     game.aiBrands=game.aiBrands.filter(b=>!b.bankrupt);
   }
-  const alive=game.aiBrands.filter(b=>!b.bankrupt).length;
+  const alive=aliveBrands.length;
   if(alive<MAX_ACTIVE_AI_BRANDS && Math.random()<0.3){
     spawnAiBrand();
   }
+}
+
+function garbageCollectBrand(brandName){
+  const beforeLen=CATALOG.length;
+  for(let i=CATALOG.length-1;i>=0;i--){
+    if(CATALOG[i].aiMade&&CATALOG[i].brand===brandName)CATALOG.splice(i,1);
+  }
+  return beforeLen-CATALOG.length;
 }
 
 function pushLog(msg,type='info'){
@@ -3285,43 +3300,50 @@ function updateEndgame(){
 // ============ RETRO WEB BROWSER ============
 function renderWeb(){
   const el=document.getElementById('tab-web');
-  let html='<div class="browser-wrap">';
-  html+='<div class="browser-bar"><div class="browser-dot r"></div><div class="browser-dot y"></div><div class="browser-dot g"></div>';
-  html+='<div class="browser-url">google.tech/search</div></div>';
-  html+='<div class="browser-content">';
-  if(game.webWikiPage){
-    html+=renderWikiPage(game.webWikiPage);
-    html+='<div style="margin-top:16px"><button class="btn btn-ghost btn-sm" onclick="closeWiki()">← Quay lại</button></div>';
-  } else {
-    html+='<div class="google-logo">Techgle</div>';
-    html+='<input type="text" class="search-box" placeholder="Tìm kiếm linh kiện, đối thủ AI..." id="web-search-input" value="'+(game.webSearchQuery||'')+'" onkeydown="if(event.key===\'Enter\')performWebSearch(this.value)">';
-    html+='<div style="text-align:center;margin-bottom:14px"><button class="btn btn-p" onclick="performWebSearch(document.getElementById(\'web-search-input\').value)">Tìm kiếm</button> ';
-    html+='<button class="btn btn-ghost" onclick="performWebSearch(\'\')">Xem tất cả</button></div>';
-    if(game.webSearchResults.length){
-      html+='<div style="margin-top:10px">';
-      game.webSearchResults.forEach(r=>{
-        html+='<div class="search-result"><div class="sr-title" onclick="openWikiPage(\''+r.id+'\')">'+r.title+'</div>';
-        html+='<div class="sr-url">techgle.tech/wiki/'+r.id+'</div>';
-        html+='<div class="sr-desc">'+r.desc+'</div></div>';
-      });
-      html+='</div>';
+  try{
+    if(!game||!game.aiBrands){el.innerHTML='<div class="card empty-state">Dữ liệu chưa sẵn sàng. Hãy tải lại trang.</div>';return;}
+    let html='<div class="browser-wrap">';
+    html+='<div class="browser-bar"><div class="browser-dot r"></div><div class="browser-dot y"></div><div class="browser-dot g"></div>';
+    html+='<div class="browser-url">google.tech/search</div></div>';
+    html+='<div class="browser-content">';
+    if(game.webWikiPage){
+      html+=renderWikiPage(game.webWikiPage);
+      html+='<div style="margin-top:16px"><button class="btn btn-ghost btn-sm" onclick="closeWiki()">← Quay lại</button></div>';
     } else {
-      html+='<div class="empty-state">Nhập từ khóa để tra cứu linh kiện hoặc đối thủ</div>';
+      html+='<div class="google-logo">Techgle</div>';
+      html+='<input type="text" class="search-box" placeholder="Tìm kiếm linh kiện, đối thủ AI..." id="web-search-input" value="'+(game.webSearchQuery||'')+'" onkeydown="if(event.key===\'Enter\')performWebSearch(this.value)">';
+      html+='<div style="text-align:center;margin-bottom:14px"><button class="btn btn-p" onclick="performWebSearch(document.getElementById(\'web-search-input\').value)">Tìm kiếm</button> ';
+      html+='<button class="btn btn-ghost" onclick="performWebSearch(\'\')">Xem tất cả</button></div>';
+      const results=Array.isArray(game.webSearchResults)?game.webSearchResults:[];
+      if(results.length){
+        html+='<div style="margin-top:10px">';
+        results.forEach(r=>{
+          if(!r)return;
+          html+='<div class="search-result"><div class="sr-title" onclick="openWikiPage(\''+r.id+'\')">'+r.title+'</div>';
+          html+='<div class="sr-url">techgle.tech/wiki/'+r.id+'</div>';
+          html+='<div class="sr-desc">'+r.desc+'</div></div>';
+        });
+        html+='</div>';
+      } else {
+        html+='<div class="empty-state">Nhập từ khóa để tra cứu linh kiện hoặc đối thủ</div>';
+      }
+      html+=renderLeaderboard();
     }
-    html+=renderLeaderboard();
+    html+='</div></div>';
+    el.innerHTML=html;
+  }catch(e){
+    el.innerHTML='<div class="card"><h3>Lỗi hiển thị</h3><div class="empty-state" style="color:var(--err)">Tab Google ảo gặp lỗi: '+(e&&e.message?e.message:'Không xác định')+'<br><button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="performWebSearch(\'\')">Thử lại</button></div></div>';
   }
-  html+='</div></div>';
-  el.innerHTML=html;
 }
 
 function renderLeaderboard(){
   let html='<div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">';
   html+='<h4 style="color:var(--p);margin-bottom:10px">Bảng Xếp Hạnh Thị Trường</h4>';
   const all=[];
-  all.push({name:'Tech Empire (Bạn)',share:game.marketShare,revenue:game.totalRevenue,techLevel:game.techLevel,status:'player',type:'player'});
-  game.competitors.forEach(c=>{all.push({name:c.name,share:c.share,revenue:c.revenue,techLevel:0,status:c.status,type:'competitor'});});
-  game.aiBrands.filter(b=>!b.bankrupt).forEach(b=>{all.push({name:b.name,share:b.share,revenue:b.revenue,techLevel:b.techLevel,status:b.status,type:'ai'});});
-  all.sort((a,b)=>b.share-a.share);
+  all.push({name:'Tech Empire (Bạn)',share:game.marketShare||0,revenue:game.totalRevenue||0,techLevel:game.techLevel||0,status:'player',type:'player'});
+  (game.competitors||[]).forEach(c=>{all.push({name:c.name,share:c.share||0,revenue:c.revenue||0,techLevel:0,status:c.status||'stable',type:'competitor'});});
+  (game.aiBrands||[]).filter(b=>b&&!b.bankrupt).forEach(b=>{all.push({id:b.id,name:b.name,share:b.share||0,revenue:b.revenue||0,techLevel:b.techLevel||0,status:b.status||'stable',type:'ai',partsCount:CATALOG.filter(p=>p.aiMade&&p.brand===b.name).length});});
+  all.sort((a,b)=>(b.share||0)-(a.share||0));
   const aliveAi=game.aiBrands.filter(b=>!b.bankrupt).length;
   const bankruptAi=game.aiBrands.filter(b=>b.bankrupt).length;
   html+='<div class="news-stats" style="margin-bottom:10px"><div class="news-stat"><span class="v" style="color:var(--ok)">'+all.length+'</span><span class="l">Tổng công ty</span></div>';
@@ -3330,15 +3352,23 @@ function renderLeaderboard(){
   all.forEach((c,i)=>{
     const isPlayer=c.type==='player';
     const statusClass=c.status==='player'?'':c.status;
-    const statusText=c.status==='player'?'Bạn':c.status==='rising'?'Đang tăng':c.status==='falling'?'Đang giảm':c.status==='stuck'?'Bị kẹt':'Ổn định';
-    const barColor=isPlayer?'var(--p)':c.status==='rising'?'var(--ok)':c.status==='falling'||c.status==='stuck'?'var(--err)':'var(--s)';
+    const statusText=c.status==='player'?'Bạn':c.status==='rising'?'Đang tăng':c.status==='falling'?'Đang giảm':c.status==='stuck'?'Bị kẹt':c.status==='leader'?'Đứng đầu':'Ổn định';
+    const barColor=isPlayer?'var(--p)':c.status==='rising'?'var(--ok)':c.status==='falling'||c.status==='stuck'?'var(--err)':c.status==='leader'?'var(--ac)':'var(--s)';
     html+='<div class="comp-card" style="'+(isPlayer?'border-color:var(--p);border-width:2px':'')+'">';
-    html+='<div class="comp-header"><span class="comp-name">#'+(i+1)+' '+c.name;
-    if(c.type==='ai')html+=' <span style="font-size:9px;color:var(--txt3);background:var(--bg);padding:1px 5px;border-radius:3px">AI</span>';
+    html+='<div class="comp-header"><span class="comp-name">#'+(i+1)+' ';
+    if(c.type==='ai'){
+      html+='<a class="brand-link" onclick="showAiBrandProfile('+c.id+')">'+c.name+'</a>';
+      html+=' <span style="font-size:9px;color:var(--txt3);background:var(--bg);padding:1px 5px;border-radius:3px">AI</span>';
+    } else if(c.type==='competitor'){
+      html+='<a class="brand-link" onclick="openWikiPage(\'comp_'+c.id+'\')">'+c.name+'</a>';
+    } else {
+      html+=c.name;
+    }
     html+='</span><span class="comp-status '+statusClass+'">'+statusText+'</span></div>';
     html+='<div class="comp-bar"><div class="fill" style="width:'+Math.min(100,c.share*2.5)+'%;background:'+barColor+'"></div></div>';
     html+='<div class="comp-meta"><span>Thị phần: '+Math.round(c.share)+'%</span><span>Doanh thu: '+fmtMoney(c.revenue||0)+'</span>';
     if(c.techLevel>0)html+='<span>Công nghệ: '+c.techLevel+'</span>';
+    if(c.type==='ai')html+='<span>'+c.partsCount+' linh kiện</span>';
     html+='</div></div>';
   });
   html+='</div>';
@@ -3351,8 +3381,9 @@ function performWebSearch(query){
   const q=query.toLowerCase().trim();
   let results=[];
   CATALOG.forEach(item=>{
-    if(!q || item.n.toLowerCase().includes(q) || CAT_LABELS[item.cat].toLowerCase().includes(q)){
-      results.push({id:item.id,title:item.n,desc:CAT_LABELS[item.cat]+' · Era '+item.e+' · Perf '+item.perf+(item.watt?' · '+item.watt+'W':'')+(item.vram?' · '+item.vram+'GB VRAM':'')});
+    const catLabel=CAT_LABELS[item.cat]||item.cat||'Khác';
+    if(!q || item.n.toLowerCase().includes(q) || catLabel.toLowerCase().includes(q)){
+      results.push({id:item.id,title:item.n,desc:catLabel+' · Era '+item.e+' · Perf '+item.perf+(item.watt?' · '+item.watt+'W':'')+(item.vram?' · '+item.vram+'GB VRAM':'')});
     }
   });
   game.competitors.forEach(c=>{
@@ -3391,11 +3422,14 @@ function closeWiki(){
 }
 
 function renderWikiPage(page){
+  if(!page||!page.type)return '<div class="empty-state">Không có dữ liệu</div>';
   if(page.type==='item'){
     const it=page.data;
+    if(!it)return '<div class="empty-state">Không tìm thấy linh kiện</div>';
+    const catLabel=CAT_LABELS[it.cat]||it.cat||'Khác';
     let html='<div class="wiki-page"><h4>'+it.n+'</h4>';
     html+='<div class="wiki-spec">';
-    html+='<div class="ws-row"><span class="ws-label">Danh mục</span><span class="ws-val">'+CAT_LABELS[it.cat]+'</span></div>';
+    html+='<div class="ws-row"><span class="ws-label">Danh mục</span><span class="ws-val">'+catLabel+'</span></div>';
     html+='<div class="ws-row"><span class="ws-label">Kỷ nguyên</span><span class="ws-val">'+(ERAS[it.e]?ERAS[it.e].name:'Endgame')+'</span></div>';
     html+='<div class="ws-row"><span class="ws-label">Năm ra mắt</span><span class="ws-val">'+(ERAS[it.e]?ERAS[it.e].y0:'2024+')+'</span></div>';
     html+='<div class="ws-row"><span class="ws-label">Hiệu suất</span><span class="ws-val">'+it.perf+'</span></div>';
@@ -3431,12 +3465,14 @@ function renderWikiPage(page){
     return html;
   } else if(page.type==='aibrand'){
     const b=page.data;
+    if(!b)return '<div class="empty-state">Không tìm thấy hãng AI</div>';
+    const catLabelB=CAT_LABELS[b.cat]||b.cat||'Khác';
     let html='<div class="wiki-page"><h4>'+b.name+' <span style="font-size:11px;color:var(--txt3)">Hãng AI</span></h4>';
     html+='<div class="wiki-spec">';
-    html+='<div class="ws-row"><span class="ws-label">Thị phần</span><span class="ws-val">'+Math.round(b.share)+'%</span></div>';
-    html+='<div class="ws-row"><span class="ws-label">Doanh thu</span><span class="ws-val">'+fmtMoney(b.revenue)+'</span></div>';
-    html+='<div class="ws-row"><span class="ws-label">Mức công nghệ</span><span class="ws-val">'+b.techLevel+'</span></div>';
-    html+='<div class="ws-row"><span class="ws-label">Lĩnh vực</span><span class="ws-val">'+CAT_LABELS[b.cat]+'</span></div>';
+    html+='<div class="ws-row"><span class="ws-label">Thị phần</span><span class="ws-val">'+Math.round(b.share||0)+'%</span></div>';
+    html+='<div class="ws-row"><span class="ws-label">Doanh thu</span><span class="ws-val">'+fmtMoney(b.revenue||0)+'</span></div>';
+    html+='<div class="ws-row"><span class="ws-label">Mức công nghệ</span><span class="ws-val">'+(b.techLevel||0)+'</span></div>';
+    html+='<div class="ws-row"><span class="ws-label">Lĩnh vực</span><span class="ws-val">'+catLabelB+'</span></div>';
     html+='<div class="ws-row"><span class="ws-label">Trạng thái</span><span class="ws-val">'+(b.status==='rising'?'Đang tăng trưởng':b.status==='falling'?'Đang suy giảm':b.status==='stuck'?'Bị kẹt':'Ổn định')+'</span></div>';
     html+='<div class="ws-row"><span class="ws-label">Ngày gia nhập</span><span class="ws-val">Ngày '+b.foundedDay+'</span></div>';
     html+='<div class="ws-row"><span class="ws-label">Hoạt động</span><span class="ws-val">'+b.daysActive+' ngày</span></div>';
@@ -3454,21 +3490,90 @@ function renderWikiPage(page){
 
 function showCompetitorDirectory(){
   let html='<div class="wiki-page"><h4>Danh bạ Công ty Công nghệ - Bảng xếp hạng thị phần</h4>';
-  html+='<div class="sub">Xếp hạng tất cả công ty trên thị trường.</div>';
-  const all=[{name:'Tech Empire (Bạn)',share:game.marketShare,revenue:game.totalRevenue,status:'player'}];
-  game.competitors.forEach(c=>all.push({name:c.name,share:c.share,revenue:c.revenue,status:c.status}));
-  game.aiBrands.filter(b=>!b.bankrupt).forEach(b=>all.push({name:b.name,share:b.share,revenue:b.revenue,status:b.status}));
+  html+='<div class="sub">Xếp hạng tất cả công ty trên thị trường. Bấm vào tên hãng AI để xem chi tiết.</div>';
+  const all=[{name:'Tech Empire (Bạn)',share:game.marketShare,revenue:game.totalRevenue,status:'player',type:'player'}];
+  game.competitors.forEach(c=>all.push({name:c.name,share:c.share,revenue:c.revenue,status:c.status,type:'competitor',id:c.id}));
+  game.aiBrands.filter(b=>!b.bankrupt).forEach(b=>all.push({name:b.name,share:b.share,revenue:b.revenue,status:b.status,type:'ai',id:b.id}));
   all.sort((a,b)=>b.share-a.share);
   all.forEach((c,i)=>{
     const statusClass=c.status==='player'?'stable':c.status;
-    const statusText=c.status==='player'?'Người chơi':c.status==='rising'?'Đang tăng':c.status==='falling'?'Đang giảm':c.status==='stuck'?'Bị kẹt':'Ổn định';
-    html+='<div class="comp-card"><div class="comp-header"><span class="comp-name">#'+(i+1)+' '+c.name+'</span>';
+    const statusText=c.status==='player'?'Người chơi':c.status==='rising'?'Đang tăng':c.status==='falling'?'Đang giảm':c.status==='stuck'?'Bị kẹt':c.status==='leader'?'Đứng đầu':'Ổn định';
+    html+='<div class="comp-card"><div class="comp-header"><span class="comp-name">#'+(i+1)+' ';
+    if(c.type==='ai')html+='<a class="brand-link" onclick="showAiBrandProfile('+c.id+')">'+c.name+'</a>';
+    else if(c.type==='competitor')html+='<a class="brand-link" onclick="openWikiPage(\'comp_'+c.id+'\')">'+c.name+'</a>';
+    else html+=c.name;
+    html+='</span>';
     html+='<span class="comp-status '+statusClass+'">'+statusText+'</span></div>';
     html+='<div class="comp-bar"><div class="fill" style="width:'+Math.min(100,c.share*2)+'%;background:'+(c.status==='player'?'var(--p)':c.status==='rising'?'var(--ok)':c.status==='falling'||c.status==='stuck'?'var(--err)':'var(--s)')+'"></div></div>';
     html+='<div class="comp-meta"><span>Thị phần: '+Math.round(c.share)+'%</span><span>Doanh thu: '+fmtMoney(c.revenue||0)+'</span></div></div>';
   });
   html+='</div>';
   showModal('Danh bạ Đối thủ',html);
+}
+
+function showAiBrandProfile(brandId){
+  try{
+    if(!game.aiBrands||!Array.isArray(game.aiBrands)){showToast('Dữ liệu hãng AI chưa sẵn sàng','err');return;}
+    const b=game.aiBrands.find(x=>x&&x.id===brandId);
+    if(!b){showToast('Không tìm thấy hãng AI','err');return;}
+    const statusText=b.status==='rising'?'Đang phát triển':b.status==='falling'?'Đang suy giảm':b.status==='stuck'?'Bị kẹt':b.status==='leader'?'Đứng đầu':'Ổn định';
+    const statusColor=b.status==='rising'?'var(--ok)':b.status==='falling'||b.status==='stuck'?'var(--err)':b.status==='leader'?'var(--ac)':'var(--s)';
+    const exclusiveParts=CATALOG.filter(p=>p&&p.aiMade&&p.brand===b.name);
+    const catLabelP=CAT_LABELS[b.cat]||b.cat||'Khác';
+    let html='<div class="wiki-page"><div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">';
+    html+='<div style="width:48px;height:48px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:var(--p)">'+(b.name||'?').charAt(0)+'</div>';
+    html+='<div><h4 style="margin:0">'+b.name+'</h4>';
+    html+='<span style="font-size:11px;color:'+statusColor+';font-weight:700">'+statusText+'</span></div></div>';
+    html+='<div class="wiki-spec">';
+    html+='<div class="ws-row"><span class="ws-label">Lĩnh vực</span><span class="ws-val">'+catLabelP+'</span></div>';
+    html+='<div class="ws-row"><span class="ws-label">Thị phần</span><span class="ws-val">'+Math.round(b.share||0)+'%</span></div>';
+    html+='<div class="ws-row"><span class="ws-label">Doanh thu</span><span class="ws-val">'+fmtMoney(b.revenue||0)+'</span></div>';
+    html+='<div class="ws-row"><span class="ws-label">Mức công nghệ</span><span class="ws-val">'+(b.techLevel||0)+'</span></div>';
+    html+='<div class="ws-row"><span class="ws-label">Ngày gia nhập</span><span class="ws-val">Ngày '+(b.foundedDay||1)+'</span></div>';
+    html+='<div class="ws-row"><span class="ws-label">Hoạt động</span><span class="ws-val">'+(b.daysActive||0)+' ngày</span></div>';
+    html+='<div class="ws-row"><span class="ws-label">Linh kiện độc quyền</span><span class="ws-val" style="color:var(--ac);font-weight:700">'+exclusiveParts.length+' sản phẩm</span></div>';
+    html+='</div>';
+    if(exclusiveParts.length){
+      html+='<h4 style="margin:14px 0 8px;color:var(--p)">Linh kiện độc quyền của '+b.name+'</h4>';
+      html+='<div class="item-list" style="max-height:250px">';
+      exclusiveParts.sort((a,b2)=>(b2.perf||0)-(a.perf||0)).forEach(p=>{
+        const price=Math.round((p.cost||0)*getActivePriceModifier());
+        const inStock=game.stock.some(s=>s.id===p.id);
+        const pCatLabel=CAT_LABELS[p.cat]||p.cat||'Khác';
+        html+='<div class="item"><div class="info"><div class="name">'+p.n+(inStock?' <span class="cond-badge cond-good" style="font-size:9px">Có trong kho</span>':'')+'</div>';
+        html+='<div class="meta">'+pCatLabel+' · Perf '+(p.perf||0)+' · '+(p.watt||0)+'W'+(p.vram?' · '+p.vram+'GB VRAM':'')+' · '+fmtMoney(p.cost||0)+'</div></div>';
+        if(!b.bankrupt){
+          html+='<button class="btn btn-sm btn-p" onclick="buyAiBrandItem(\''+p.id+'\','+price+')" '+(game.money>=price?'':'disabled')+'>Mua</button>';
+        } else {
+          html+='<span style="font-size:11px;color:var(--err)">Ngừng bán</span>';
+        }
+        html+='</div>';
+      });
+      html+='</div>';
+    } else {
+      html+='<div class="empty-state" style="margin-top:12px">'+b.name+' chưa tung ra linh kiện nào. Theo dõi trong các ngày tới!</div>';
+    }
+    if(b.bankrupt){
+      html+='<div style="margin-top:12px;padding:10px;background:rgba(239,68,68,.1);border-radius:8px;font-size:13px;color:var(--err);text-align:center">Hãng này đã PHÁ SẢN. Linh kiện ngừng bán trên thị trường. Những linh kiện đã mua vẫn nằm trong kho như hàng hiếm sưu tầm.</div>';
+    }
+    html+='</div>';
+    showModal('Hồ sơ Hãng AI: '+b.name,html);
+  }catch(e){
+    showModal('Lỗi','<div style="padding:20px;color:var(--err)">Không thể hiển thị thông tin hãng này: '+(e&&e.message?e.message:'')+'</div>');
+  }
+}
+
+function buyAiBrandItem(id,price){
+  const it=getItemById(id);
+  if(!it){showToast('Linh kiện không tồn tại','err');return;}
+  if(game.money<price){showToast('Không đủ tiền','err');return;}
+  game.money-=price;
+  const shipId=Date.now()+Math.random();
+  game.pendingShipments.push({uid:shipId,id,cost:price,used:false,condition:'good',conditionLabel:'Mới',perfPenalty:0,daysLeft:2,totalDays:2});
+  pushLog('Mua linh kiện AI '+it.n+': '+fmtMoney(price)+' - giao 2 ngày','info');
+  showToast('Đã đặt mua '+it.n+' - giao 2 ngày','ok');
+  closeModal();renderStats();
+  saveGame(true);
 }
 
 // ============ PARTNERS RENDER ============
