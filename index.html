@@ -2436,23 +2436,6 @@ function sellNow(uid){
   renderSales(); renderStats();
 }
 
-function processAutoSales(){
-  const sold=[];
-  game.stock.forEach((s,i)=>{
-    if(s.sellPrice===undefined) s.sellPrice=Math.round(s.cost*1.2);
-    const ratio=s.sellPrice/s.cost;
-    const chance=Math.max(5,Math.min(80,Math.round(100-ratio*45)));
-    if(Math.random()*100<chance){sold.push(i);}
-  });
-  for(let i=sold.length-1;i>=0;i--){
-    const s=game.stock[sold[i]];
-    game.money+=s.sellPrice;
-    const it=getItemById(s.id);
-    pushLog(`Tự động bán ${it?it.n:''}: +${fmtMoney(s.sellPrice)}`,'ok');
-    game.stock.splice(sold[i],1);
-  }
-}
-
 function renderBuild(){
   const el=document.getElementById('tab-build');
   const era=game.eraIdx;
@@ -4350,7 +4333,7 @@ function processCafeDaily(){
 
 function advanceDay(){
   if(game.gameOver)return;
-  processShipments();processCafeDaily();processAutoSales();processAutoRepair();processEmployeeSalaries();updateStocks();
+  processShipments();processCafeDaily();processAutoRepair();processEmployeeSalaries();updateStocks();
   if(game.day%2===0)updateCompetitors();
   updateAiBrands();updateRndProjects();
   game.partners.forEach(p=>{if(p.cooldown>0)p.cooldown--;});
